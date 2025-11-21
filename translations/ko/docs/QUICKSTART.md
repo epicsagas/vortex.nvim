@@ -228,16 +228,16 @@ source ~/.zshrc
 - `<Space>af` - 버그 수정
 - `<Space>am` - AI 모델 전환
 
-**더 많은 AI 제공자 및 고급 설정**: [AI 통합 가이드](AI_INTEGRATION.ko.md) 참고
+**더 많은 AI 제공자 및 고급 설정**: [AI 통합 가이드](AI_INTEGRATION.md) 참고
 
 ---
 
 ## 다음 단계
 
-1. **[AI 통합 가이드](AI_INTEGRATION.ko.md)** - AI 고급 설정 및 기능
-2. **[언어별 가이드](LANGUAGES.ko.md)** - 언어별 상세 설정
-3. **[문제 해결 가이드](TROUBLESHOOTING.ko.md)** - 문제 해결 방법
-4. **[README.md](../../README.md)** - 전체 기능 및 키바인딩
+1. **[AI 통합 가이드](AI_INTEGRATION.md)** - AI 고급 설정 및 기능
+2. **[언어별 가이드](LANGUAGES.md)** - 언어별 상세 설정
+3. **[문제 해결 가이드](TROUBLESHOOTING.md)** - 문제 해결 방법
+4. **[README.md](../README.md)** - 전체 기능 및 키바인딩
 
 ## 도움말
 

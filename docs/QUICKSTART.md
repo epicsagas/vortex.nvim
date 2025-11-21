@@ -1,6 +1,6 @@
 # Neovim Quick Start Guide (5 Minutes)
 
-> 🌏 **한국어**: [빠른 시작 가이드](../translations/ko/docs//QUICKSTART.md)
+> 🌏 **한국어**: [빠른 시작 가이드](../translations/ko/docs/QUICKSTART.md)
 
 Set up a complete development environment supporting 24 languages in just 5 minutes!
 

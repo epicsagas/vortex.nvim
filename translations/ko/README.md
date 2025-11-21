@@ -33,9 +33,9 @@
 ## 📚 문서
 
 - **[빠른 시작 가이드](docs/QUICKSTART.md)** - 5분 안에 시작하기
-- **[AI 통합 설정 가이드](docs/AI_SETUP.ko.md)** - Claude, OpenAI, Gemini, xAI 통합
-- **[AI CLI 통합 가이드](docs/AI_CLI_INTEGRATION.md)** - 멀티-AI CLI 래퍼 완전 가이드
-- **[AI CLI 빠른 시작](docs/QUICKSTART_AI_CLI.md)** - 5분 빠른 시작
+- **[AI 통합 가이드](docs/AI_INTEGRATION.md)** - Claude, OpenAI, Gemini, xAI 통합
+- **[AI CLI 통합 가이드](../../docs/AI_CLI_INTEGRATION.md)** - 멀티-AI CLI 래퍼 완전 가이드 *(영문)*
+- **[AI CLI 빠른 시작](../../docs/QUICKSTART_AI_CLI.md)** - 5분 빠른 시작 *(영문)*
 - **[언어별 가이드](docs/LANGUAGES.md)** - 24개 언어별 상세 설정
 - **[문제 해결 가이드](docs/TROUBLESHOOTING.md)** - 문제 해결 방법
 - **[마크다운 & 다이어그램 가이드](docs/MARKDOWN_DIAGRAMS.md)** - Markdown 및 다이어그램 프리뷰

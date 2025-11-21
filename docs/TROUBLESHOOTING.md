@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-> 🌏 **한국어**: [문제 해결 가이드](../translations/ko/docs//TROUBLESHOOTING.md)
+> 🌏 **한국어**: [문제 해결 가이드](../translations/ko/docs/TROUBLESHOOTING.md)
 
 Common issues and solutions you may encounter while using this Neovim configuration.
 

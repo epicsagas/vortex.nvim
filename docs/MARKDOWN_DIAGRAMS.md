@@ -1,6 +1,6 @@
 # Markdown & Diagrams Guide
 
-> 🌏 **한국어**: [마크다운 & 다이어그램 가이드](../translations/ko/docs//MARKDOWN_DIAGRAMS.md)
+> 🌏 **한국어**: [마크다운 & 다이어그램 가이드](../translations/ko/docs/MARKDOWN_DIAGRAMS.md)
 
 Complete guide for Markdown editing and Mermaid, PlantUML diagram previews in Neovim.
 
