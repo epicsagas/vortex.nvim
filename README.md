@@ -47,11 +47,11 @@ Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like f
 
 ### 한국어 문서 (Korean Documentation)
 
-- **[빠른 시작 가이드](docs/ko/QUICKSTART.ko.md)** - 5분 안에 시작하기 (AI 설정 포함)
-- **[AI 통합 가이드](docs/ko/AI_INTEGRATION.ko.md)** - 완전한 AI 설정: CodeCompanion + nvim-ai CLI
-- **[언어별 가이드](docs/ko/LANGUAGES.ko.md)** - 24개 언어별 상세 설정
-- **[문제 해결 가이드](docs/ko/TROUBLESHOOTING.ko.md)** - 문제 해결 방법
-- **[마크다운 & 다이어그램 가이드](docs/ko/MARKDOWN_DIAGRAMS.ko.md)** - Markdown 및 다이어그램 프리뷰
+- **[빠른 시작 가이드](translations/ko/docs/QUICKSTART.md)** - 5분 안에 시작하기 (AI 설정 포함)
+- **[AI 통합 가이드](translations/ko/docs/AI_INTEGRATION.md)** - 완전한 AI 설정: CodeCompanion + nvim-ai CLI
+- **[언어별 가이드](translations/ko/docs/LANGUAGES.md)** - 24개 언어별 상세 설정
+- **[문제 해결 가이드](translations/ko/docs/TROUBLESHOOTING.md)** - 문제 해결 방법
+- **[마크다운 & 다이어그램 가이드](translations/ko/docs/MARKDOWN_DIAGRAMS.md)** - Markdown 및 다이어그램 프리뷰
 
 ## Features
 
