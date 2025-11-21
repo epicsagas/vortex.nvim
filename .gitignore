@@ -1,0 +1,53 @@
+# Neovim directories
+.backup/
+.swap/
+.undo/
+
+# Plugin data (managed by lazy.nvim)
+lazy-lock.json
+
+# Mason LSP installations
+plugin/
+
+# Vim session files
+Session.vim
+.netrwhist
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled files
+*.o
+*.so
+*.dylib
+
+# Debug files
+.dap/
+dap.log
+
+# nvim-ai cache and config
+.cache/nvim-ai/
+config/nvim-ai-config.yaml
+
+# Test files
+test_*.rs
+test_*.go
+test_*.py
+test_sample.*
+
+# API Keys (if accidentally committed)
+*.key
+*.pem
+.env
+.env.local
+
+# IDE-specific
+.vscode/
+.idea/
+
+# Local history (VS Code extension)
+.history/
+
+.cursor/
+.claude/

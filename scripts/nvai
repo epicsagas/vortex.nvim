@@ -1,0 +1,789 @@
+#!/usr/bin/env bash
+#
+# nvai - Neovim AI CLI Wrapper
+# Multi-provider AI assistant with context awareness
+#
+# Usage:
+#   nvai [options] <prompt>
+#   nvai --provider claude "Explain this code"
+#   nvai --file main.rs "Optimize this function"
+#   nvai --project "Analyze architecture"
+
+set -euo pipefail
+
+# Configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NVIM_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+CONFIG_FILE="$NVIM_CONFIG/config/nvim-ai-config.yaml"
+CONFIG_TEMPLATE="$NVIM_CONFIG/config/nvim-ai-config.yaml.default"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/nvim-ai"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Logging
+log_info() { echo -e "${BLUE}ℹ${NC} $*" >&2; }
+log_success() { echo -e "${GREEN}✓${NC} $*" >&2; }
+log_warn() { echo -e "${YELLOW}⚠${NC} $*" >&2; }
+log_error() { echo -e "${RED}✗${NC} $*" >&2; }
+
+# Default values
+PROVIDER=""
+CONTEXT_FILE=""
+CONTEXT_PROJECT=""
+CONTEXT_SELECTION=""
+MODEL=""
+TEMPERATURE="0.7"
+MAX_TOKENS="4096"
+STREAM="true"
+OUTPUT_FORMAT="text"
+PROMPT=""
+
+# Show usage
+usage() {
+  cat <<EOF
+nvai - Neovim AI CLI Wrapper
+
+USAGE:
+  nvai [OPTIONS] <prompt>
+
+OPTIONS:
+  -p, --provider <name>      AI provider (claude|gemini|openai|xai|cursor|codex|auto)
+  -f, --file <path>          Include file as context
+  -P, --project <path>       Include project directory as context
+  -s, --selection <text>     Include code selection
+  -m, --model <name>         Specific model to use
+  -t, --temperature <0-2>    Temperature for generation (default: 0.7)
+  --max-tokens <number>      Maximum tokens to generate (default: 4096)
+  --no-stream               Disable streaming output
+  --json                    Output in JSON format
+  --config <path>           Custom config file path
+  -h, --help                Show this help message
+
+PROVIDERS:
+  claude     Anthropic Claude (via CLI or API)
+  gemini     Google Gemini (via CLI or API)
+  openai     OpenAI GPT-4, GPT-3.5 (via API)
+  xai        xAI Grok (via API)
+  cursor     Cursor AI (via API)
+  codex      OpenAI Codex (via CLI)
+  auto       Auto-detect best available provider (default)
+
+EXAMPLES:
+  # Simple prompt with auto-detected provider
+  nvai "Explain design patterns"
+
+  # Use specific provider
+  nvai --provider claude "Review this code"
+
+  # Include file context
+  nvai --file src/main.rs "Optimize this function"
+
+  # Include project context
+  nvai --project . "Analyze architecture"
+
+  # From Neovim (with selection)
+  nvai --provider gemini --selection "\$(cat)" "Refactor this"
+
+  # Custom model and temperature
+  nvai --provider claude --model claude-opus-4 --temperature 0.3 "Write tests"
+
+CONFIGURATION:
+  Config file: $CONFIG_FILE
+  See 'nvai --init' to create default configuration
+
+EOF
+  exit 0
+}
+
+# Initialize configuration
+init_config() {
+  mkdir -p "$(dirname "$CONFIG_FILE")" "$CACHE_DIR"
+
+  # Check if template exists in repo
+  local repo_template=""
+  if [[ -f "$SCRIPT_DIR/../config/nvim-ai-config.yaml.default" ]]; then
+    repo_template="$SCRIPT_DIR/../config/nvim-ai-config.yaml.default"
+  elif [[ -f "$CONFIG_TEMPLATE" ]]; then
+    repo_template="$CONFIG_TEMPLATE"
+  fi
+
+  if [[ -f "$CONFIG_FILE" ]]; then
+    log_warn "Config file already exists: $CONFIG_FILE"
+    read -p "Overwrite? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      exit 0
+    fi
+  fi
+
+  # Use template if available, otherwise create from scratch
+  if [[ -n "$repo_template" && -f "$repo_template" ]]; then
+    cp "$repo_template" "$CONFIG_FILE"
+    log_success "Configuration created from template: $CONFIG_FILE"
+    log_info "Edit this file to customize settings"
+    exit 0
+  fi
+
+  cat > "$CONFIG_FILE" <<'YAML'
+# nvai configuration
+
+# Default provider (claude|gemini|openai|xai|cursor|codex|auto)
+default_provider: auto
+
+# Provider configurations
+providers:
+  claude:
+    # Use CLI or API
+    mode: cli  # cli|api
+
+    # CLI configuration
+    cli:
+      command: claude
+      args: []
+
+    # API configuration
+    api:
+      endpoint: https://api.anthropic.com/v1/messages
+      api_key_env: ANTHROPIC_API_KEY
+      model: claude-sonnet-4-20250514
+      max_tokens: 4096
+      temperature: 0.7
+
+  gemini:
+    mode: cli
+
+    cli:
+      command: gemini
+      args: []
+
+    api:
+      endpoint: https://generativelanguage.googleapis.com/v1beta/models
+      api_key_env: GEMINI_API_KEY
+      model: gemini-2.0-flash-exp
+      max_tokens: 8192
+      temperature: 0.7
+
+  openai:
+    mode: api
+
+    api:
+      endpoint: https://api.openai.com/v1/chat/completions
+      api_key_env: OPENAI_API_KEY
+      model: gpt-4o
+      max_tokens: 4096
+      temperature: 0.7
+
+  xai:
+    mode: api
+
+    api:
+      endpoint: https://api.x.ai/v1/chat/completions
+      api_key_env: XAI_API_KEY
+      model: grok-2-1212
+      max_tokens: 4096
+      temperature: 0.7
+
+  cursor:
+    mode: api
+
+    api:
+      endpoint: https://api.cursor.sh/v1/chat
+      api_key_env: CURSOR_API_KEY
+      model: cursor-small
+      max_tokens: 4096
+      temperature: 0.7
+
+  codex:
+    mode: cli
+
+    cli:
+      command: openai-cli
+      args: ["--model", "gpt-4o"]
+
+    api:
+      endpoint: https://api.openai.com/v1/chat/completions
+      api_key_env: OPENAI_API_KEY
+      model: gpt-4o
+      max_tokens: 4096
+      temperature: 0.7
+
+# Context settings
+context:
+  # Maximum file size to include (bytes)
+  max_file_size: 1048576  # 1MB
+
+  # File patterns to exclude
+  exclude_patterns:
+    - "*.min.js"
+    - "*.map"
+    - "node_modules/**"
+    - ".git/**"
+    - "dist/**"
+    - "build/**"
+
+  # Include git information
+  include_git_info: true
+
+  # Include LSP diagnostics if available
+  include_diagnostics: true
+
+# Output settings
+output:
+  # Enable streaming
+  stream: true
+
+  # Format (text|json|markdown)
+  format: text
+
+  # Color output
+  color: true
+
+  # Show thinking process (if supported)
+  show_thinking: false
+
+# Cache settings
+cache:
+  # Enable response caching
+  enabled: true
+
+  # Cache TTL in seconds
+  ttl: 3600
+
+  # Maximum cache size (MB)
+  max_size: 100
+
+YAML
+
+  log_success "Configuration created: $CONFIG_FILE"
+  log_info "Edit this file to customize settings"
+  exit 0
+}
+
+# Load configuration
+load_config() {
+  if [[ ! -f "$CONFIG_FILE" ]]; then
+    # Check if template exists
+    local repo_template=""
+    if [[ -f "$SCRIPT_DIR/../config/nvim-ai-config.yaml.default" ]]; then
+      repo_template="$SCRIPT_DIR/../config/nvim-ai-config.yaml.default"
+    elif [[ -f "$CONFIG_TEMPLATE" ]]; then
+      repo_template="$CONFIG_TEMPLATE"
+    fi
+
+    if [[ -n "$repo_template" && -f "$repo_template" ]]; then
+      log_info "Config file not found. Creating from template..."
+      mkdir -p "$(dirname "$CONFIG_FILE")"
+      cp "$repo_template" "$CONFIG_FILE"
+      log_success "Configuration created from template: $CONFIG_FILE"
+    else
+      log_warn "Config file not found. Creating default configuration..."
+      init_config
+    fi
+  fi
+
+  # Simple YAML parsing (requires yq or python)
+  if command -v yq &> /dev/null; then
+    # Use yq if available
+    return 0
+  elif command -v python3 &> /dev/null; then
+    # Fallback to Python
+    return 0
+  else
+    log_warn "Install 'yq' or 'python3' for full config support"
+    return 1
+  fi
+}
+
+# Get config value
+get_config() {
+  local key="$1"
+  local default="${2:-}"
+
+  if command -v yq &> /dev/null; then
+    yq eval ".$key // \"$default\"" "$CONFIG_FILE" 2>/dev/null || echo "$default"
+  elif command -v python3 &> /dev/null; then
+    python3 -c "
+import yaml, sys
+with open('$CONFIG_FILE') as f:
+    config = yaml.safe_load(f)
+    keys = '$key'.split('.')
+    value = config
+    for k in keys:
+        value = value.get(k, {})
+    print(value if value else '$default')
+" 2>/dev/null || echo "$default"
+  else
+    echo "$default"
+  fi
+}
+
+# Detect available providers
+detect_providers() {
+  local available=()
+
+  # Check Claude
+  if command -v claude &> /dev/null || [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+    available+=("claude")
+  fi
+
+  # Check Gemini
+  if command -v gemini &> /dev/null || [[ -n "${GEMINI_API_KEY:-}" ]]; then
+    available+=("gemini")
+  fi
+
+  # Check OpenAI
+  if [[ -n "${OPENAI_API_KEY:-}" ]]; then
+    available+=("openai")
+  fi
+
+  # Check xAI (Grok)
+  if [[ -n "${XAI_API_KEY:-}" ]]; then
+    available+=("xai")
+  fi
+
+  # Check Cursor
+  if [[ -n "${CURSOR_API_KEY:-}" ]]; then
+    available+=("cursor")
+  fi
+
+  # Check Codex (OpenAI CLI)
+  if command -v openai-cli &> /dev/null || [[ -n "${OPENAI_API_KEY:-}" ]]; then
+    available+=("codex")
+  fi
+
+  echo "${available[@]}"
+}
+
+# Select best provider
+select_provider() {
+  if [[ -n "$PROVIDER" && "$PROVIDER" != "auto" ]]; then
+    echo "$PROVIDER"
+    return 0
+  fi
+
+  # Check config.yaml for default_provider
+  local config_provider
+  config_provider=$(get_config "default_provider" "auto")
+  
+  if [[ -n "$config_provider" && "$config_provider" != "auto" ]]; then
+    # Verify the configured provider is available
+    local available
+    read -ra available <<< "$(detect_providers)"
+    
+    if [[ " ${available[*]} " =~ " ${config_provider} " ]]; then
+      echo "$config_provider"
+      return 0
+    else
+      log_warn "Configured provider '$config_provider' not available. Using fallback."
+    fi
+  fi
+
+  local available
+  read -ra available <<< "$(detect_providers)"
+
+  if [[ ${#available[@]} -eq 0 ]]; then
+    log_error "No AI providers available. Please install a CLI tool or set API keys."
+    exit 1
+  fi
+
+  # Priority: claude > gemini > openai > xai > cursor > codex
+  for provider in claude gemini openai xai cursor codex; do
+    if [[ " ${available[*]} " =~ " ${provider} " ]]; then
+      echo "$provider"
+      return 0
+    fi
+  done
+
+  # Fallback to first available
+  echo "${available[0]}"
+}
+
+# Build context from file
+build_file_context() {
+  local file="$1"
+
+  if [[ ! -f "$file" ]]; then
+    log_error "File not found: $file"
+    return 1
+  fi
+
+  local size
+  size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+  local max_size
+  max_size=$(get_config "context.max_file_size" "1048576")
+
+  if [[ $size -gt $max_size ]]; then
+    log_warn "File too large: $file ($size bytes > $max_size bytes)"
+    return 1
+  fi
+
+  local filetype="${file##*.}"
+  cat <<EOF
+
+## File: $file
+
+\`\`\`$filetype
+$(cat "$file")
+\`\`\`
+
+EOF
+}
+
+# Build context from project
+build_project_context() {
+  local project_dir="$1"
+
+  if [[ ! -d "$project_dir" ]]; then
+    log_error "Directory not found: $project_dir"
+    return 1
+  fi
+
+  cat <<EOF
+
+## Project: $project_dir
+
+### Structure:
+\`\`\`
+$(tree -L 2 -I 'node_modules|.git|dist|build' "$project_dir" 2>/dev/null || find "$project_dir" -maxdepth 2 -type f | head -20)
+\`\`\`
+
+EOF
+
+  # Add git info if available
+  if [[ -d "$project_dir/.git" ]] && command -v git &> /dev/null; then
+    local branch
+    branch=$(cd "$project_dir" && git branch --show-current 2>/dev/null || echo "unknown")
+    cat <<EOF
+### Git Info:
+- Branch: $branch
+- Recent commits:
+\`\`\`
+$(cd "$project_dir" && git log --oneline -5 2>/dev/null || echo "No git history")
+\`\`\`
+
+EOF
+  fi
+}
+
+# Build selection context
+build_selection_context() {
+  local selection="$1"
+
+  if [[ -z "$selection" ]]; then
+    return 0
+  fi
+
+  cat <<EOF
+
+## Selected Code:
+
+\`\`\`
+$selection
+\`\`\`
+
+EOF
+}
+
+# Call Claude provider
+call_claude() {
+  local prompt="$1"
+  local mode
+  mode=$(get_config "providers.claude.mode" "cli")
+
+  if [[ "$mode" == "cli" ]] && command -v claude &> /dev/null; then
+    # Use Claude CLI
+    log_info "Using Claude CLI..."
+    echo "$prompt" | claude
+  else
+    # Use Claude API
+    log_info "Using Claude API..."
+    local api_key="${ANTHROPIC_API_KEY:-}"
+    local model
+    model=$(get_config "providers.claude.api.model" "claude-sonnet-4-20250514")
+
+    if [[ -z "$api_key" ]]; then
+      log_error "ANTHROPIC_API_KEY not set"
+      exit 1
+    fi
+
+    curl -s https://api.anthropic.com/v1/messages \
+      -H "Content-Type: application/json" \
+      -H "x-api-key: $api_key" \
+      -H "anthropic-version: 2023-06-01" \
+      -d "{
+        \"model\": \"$model\",
+        \"max_tokens\": $MAX_TOKENS,
+        \"temperature\": $TEMPERATURE,
+        \"messages\": [{
+          \"role\": \"user\",
+          \"content\": $(echo "$prompt" | jq -Rs .)
+        }]
+      }" | jq -r '.content[0].text // .error.message // "Error"'
+  fi
+}
+
+# Call Gemini provider
+call_gemini() {
+  local prompt="$1"
+  local mode
+  mode=$(get_config "providers.gemini.mode" "cli")
+
+  if [[ "$mode" == "cli" ]] && command -v gemini &> /dev/null; then
+    # Use Gemini CLI
+    log_info "Using Gemini CLI..."
+    echo "$prompt" | gemini
+  else
+    # Use Gemini API
+    log_info "Using Gemini API..."
+    local api_key="${GEMINI_API_KEY:-}"
+    local model
+    model=$(get_config "providers.gemini.api.model" "gemini-2.0-flash-exp")
+
+    if [[ -z "$api_key" ]]; then
+      log_error "GEMINI_API_KEY not set"
+      exit 1
+    fi
+
+    curl -s "https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=$api_key" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"contents\": [{
+          \"parts\": [{
+            \"text\": $(echo "$prompt" | jq -Rs .)
+          }]
+        }],
+        \"generationConfig\": {
+          \"temperature\": $TEMPERATURE,
+          \"maxOutputTokens\": $MAX_TOKENS
+        }
+      }" | jq -r '.candidates[0].content.parts[0].text // .error.message // "Error"'
+  fi
+}
+
+# Call Cursor provider
+call_cursor() {
+  local prompt="$1"
+
+  log_info "Using Cursor API..."
+  local api_key="${CURSOR_API_KEY:-}"
+  local model
+  model=$(get_config "providers.cursor.api.model" "cursor-small")
+
+  if [[ -z "$api_key" ]]; then
+    log_error "CURSOR_API_KEY not set"
+    exit 1
+  fi
+
+  curl -s https://api.cursor.sh/v1/chat \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $api_key" \
+    -d "{
+      \"model\": \"$model\",
+      \"messages\": [{
+        \"role\": \"user\",
+        \"content\": $(echo "$prompt" | jq -Rs .)
+      }],
+      \"temperature\": $TEMPERATURE,
+      \"max_tokens\": $MAX_TOKENS
+    }" | jq -r '.choices[0].message.content // .error.message // "Error"'
+}
+
+# Call OpenAI provider
+call_openai() {
+  local prompt="$1"
+  local api_key="${OPENAI_API_KEY:-}"
+
+  if [[ -z "$api_key" ]]; then
+    log_error "OPENAI_API_KEY not set"
+    exit 1
+  fi
+
+  local model="${MODEL:-gpt-4o}"
+  log_info "Using OpenAI API..."
+
+  curl -s https://api.openai.com/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $api_key" \
+    -d "{
+      \"model\": \"$model\",
+      \"max_tokens\": $MAX_TOKENS,
+      \"temperature\": $TEMPERATURE,
+      \"messages\": [{
+        \"role\": \"user\",
+        \"content\": $(echo "$prompt" | jq -Rs .)
+      }]
+    }" | jq -r '.choices[0].message.content // .error.message // "Error"'
+}
+
+# Call xAI (Grok) provider
+call_xai() {
+  local prompt="$1"
+  local api_key="${XAI_API_KEY:-}"
+
+  if [[ -z "$api_key" ]]; then
+    log_error "XAI_API_KEY not set"
+    exit 1
+  fi
+
+  local model="${MODEL:-grok-2-1212}"
+  log_info "Using xAI API..."
+
+  curl -s https://api.x.ai/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $api_key" \
+    -d "{
+      \"model\": \"$model\",
+      \"max_tokens\": $MAX_TOKENS,
+      \"temperature\": $TEMPERATURE,
+      \"messages\": [{
+        \"role\": \"user\",
+        \"content\": $(echo "$prompt" | jq -Rs .)
+      }]
+    }" | jq -r '.choices[0].message.content // .error.message // "Error"'
+}
+
+# Call Codex provider
+call_codex() {
+  local prompt="$1"
+
+  if command -v openai-cli &> /dev/null; then
+    log_info "Using Codex CLI..."
+    echo "$prompt" | openai-cli --model "${MODEL:-gpt-4o}"
+  elif [[ -n "${OPENAI_API_KEY:-}" ]]; then
+    # Fallback to OpenAI API
+    call_openai "$prompt"
+  else
+    log_error "Codex CLI not found and OPENAI_API_KEY not set"
+    exit 1
+  fi
+}
+
+# Call AI provider
+call_provider() {
+  local provider="$1"
+  local prompt="$2"
+
+  case "$provider" in
+    claude)
+      call_claude "$prompt"
+      ;;
+    gemini)
+      call_gemini "$prompt"
+      ;;
+    openai)
+      call_openai "$prompt"
+      ;;
+    xai)
+      call_xai "$prompt"
+      ;;
+    cursor)
+      call_cursor "$prompt"
+      ;;
+    codex)
+      call_codex "$prompt"
+      ;;
+    *)
+      log_error "Unknown provider: $provider"
+      exit 1
+      ;;
+  esac
+}
+
+# Main function
+main() {
+  # Parse arguments
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -h|--help)
+        usage
+        ;;
+      --init)
+        init_config
+        ;;
+      -p|--provider)
+        PROVIDER="$2"
+        shift 2
+        ;;
+      -f|--file)
+        CONTEXT_FILE="$2"
+        shift 2
+        ;;
+      -P|--project)
+        CONTEXT_PROJECT="$2"
+        shift 2
+        ;;
+      -s|--selection)
+        CONTEXT_SELECTION="$2"
+        shift 2
+        ;;
+      -m|--model)
+        MODEL="$2"
+        shift 2
+        ;;
+      -t|--temperature)
+        TEMPERATURE="$2"
+        shift 2
+        ;;
+      --max-tokens)
+        MAX_TOKENS="$2"
+        shift 2
+        ;;
+      --no-stream)
+        STREAM="false"
+        shift
+        ;;
+      --json)
+        OUTPUT_FORMAT="json"
+        shift
+        ;;
+      --config)
+        CONFIG_FILE="$2"
+        shift 2
+        ;;
+      *)
+        # Collect remaining arguments as prompt
+        PROMPT="$*"
+        break
+        ;;
+    esac
+  done
+
+  # Validate prompt
+  if [[ -z "$PROMPT" ]]; then
+    log_error "No prompt provided"
+    usage
+  fi
+
+  # Load configuration
+  load_config
+
+  # Select provider
+  PROVIDER=$(select_provider)
+  log_info "Using provider: $PROVIDER"
+
+  # Build full context
+  local full_prompt="$PROMPT"
+
+  if [[ -n "$CONTEXT_FILE" ]]; then
+    full_prompt+=$(build_file_context "$CONTEXT_FILE")
+  fi
+
+  if [[ -n "$CONTEXT_PROJECT" ]]; then
+    full_prompt+=$(build_project_context "$CONTEXT_PROJECT")
+  fi
+
+  if [[ -n "$CONTEXT_SELECTION" ]]; then
+    full_prompt+=$(build_selection_context "$CONTEXT_SELECTION")
+  fi
+
+  # Call AI provider
+  call_provider "$PROVIDER" "$full_prompt"
+}
+
+# Run main function
+main "$@"
