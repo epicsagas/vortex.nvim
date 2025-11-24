@@ -254,12 +254,15 @@ cd ~/.config/nvim
 # 저장소 클론
 git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
 
-# 언어 도구 설치 (선택사항이지만 권장)
-./scripts/install-tools.sh
-
-# Neovim 실행
+# Neovim 실행 (플러그인이 자동으로 설치됨)
+cd ~/.config/nvim
 nvim
 ```
+
+설치 프로그램(`install.sh`)이 다음을 선택할 수 있도록 안내합니다:
+- Rust 개발 도구 설치 (rust-analyzer, rustfmt, clippy)
+- Go 개발 도구 설치 (gopls, delve, gofumpt, goimports)
+- nvim-ai CLI 통합 설치 (선택적 AI 기능)
 
 ### 첫 실행 설정
 

@@ -244,12 +244,15 @@ cd ~/.config/nvim
 # Clone the repository
 git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
 
-# Install language tools (optional but recommended)
-./scripts/install-tools.sh
-
-# Launch Neovim
+# Launch Neovim (plugins will auto-install)
+cd ~/.config/nvim
 nvim
 ```
+
+The installer (`install.sh`) will prompt you to:
+- Install Rust development tools (rust-analyzer, rustfmt, clippy)
+- Install Go development tools (gopls, delve, gofumpt, goimports)
+- Install nvim-ai CLI integration (optional AI features)
 
 ### First-Time Setup
 

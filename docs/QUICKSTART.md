@@ -38,11 +38,9 @@ brew install git ripgrep fd
 
 # Tree-sitter CLI (for Swift support)
 brew install tree-sitter-cli
-
-# Optional: Auto-install additional tools
-cd ~/.config/nvim
-./scripts/install-tools.sh
 ```
+
+> **Note**: Additional language tools (Rust/Go development tools) will be prompted during `install.sh` execution.
 
 ### Linux (Ubuntu/Debian)
 ```bash

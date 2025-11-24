@@ -216,20 +216,38 @@ fi
 # Install Rust tools
 if [ "$RUST_INSTALLED" = true ]; then
     echo ""
-    echo "Installing Rust development tools..."
-    rustup component add rust-analyzer rustfmt clippy 2>/dev/null || true
-    echo -e "${GREEN}✓ Rust tools configured${NC}"
+    read -p "Install Rust development tools (rust-analyzer, rustfmt, clippy)? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Installing Rust development tools..."
+        rustup component add rust-analyzer rustfmt clippy 2>/dev/null || true
+        echo -e "${GREEN}✓ Rust tools configured${NC}"
+    else
+        echo -e "${YELLOW}⚠ Skipping Rust tools installation${NC}"
+        echo "  You can install later by running: rustup component add rust-analyzer rustfmt clippy"
+    fi
 fi
 
 # Install Go tools
 if [ "$GO_INSTALLED" = true ]; then
     echo ""
-    echo "Installing Go development tools..."
-    go install golang.org/x/tools/gopls@latest
-    go install github.com/go-delve/delve/cmd/dlv@latest
-    go install mvdan.cc/gofumpt@latest
-    go install golang.org/x/tools/cmd/goimports@latest
-    echo -e "${GREEN}✓ Go tools installed${NC}"
+    read -p "Install Go development tools (gopls, delve, gofumpt, goimports)? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Installing Go development tools..."
+        go install golang.org/x/tools/gopls@latest
+        go install github.com/go-delve/delve/cmd/dlv@latest
+        go install mvdan.cc/gofumpt@latest
+        go install golang.org/x/tools/cmd/goimports@latest
+        echo -e "${GREEN}✓ Go tools installed${NC}"
+    else
+        echo -e "${YELLOW}⚠ Skipping Go tools installation${NC}"
+        echo "  You can install later with these commands:"
+        echo "    go install golang.org/x/tools/gopls@latest"
+        echo "    go install github.com/go-delve/delve/cmd/dlv@latest"
+        echo "    go install mvdan.cc/gofumpt@latest"
+        echo "    go install golang.org/x/tools/cmd/goimports@latest"
+    fi
 fi
 
 # Launch Neovim to install plugins
@@ -262,6 +280,34 @@ echo "  gd         - Go to definition"
 echo "  K          - Hover documentation"
 echo ""
 echo "Full documentation: cat ~/.config/nvim/README.md"
+echo ""
+
+# Optional: Install nvim-ai CLI integration
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}Optional: AI CLI Integration${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo "Would you like to install nvim-ai CLI integration?"
+echo "This enables AI-powered features (Claude, Gemini, OpenAI, etc.) in Neovim."
+echo ""
+read -p "Install nvim-ai CLI integration now? (y/n): " -n 1 -r
+echo ""
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ -f "$SCRIPT_DIR/install-nvai.sh" ]; then
+        echo ""
+        echo "Starting nvim-ai CLI integration setup..."
+        bash "$SCRIPT_DIR/install-nvai.sh"
+    else
+        echo -e "${RED}✗ install-nvai.sh not found${NC}"
+        echo "  You can install it later from: https://github.com/epicsagas/vortex.nvim"
+    fi
+else
+    echo -e "${YELLOW}⚠ Skipping nvim-ai CLI integration${NC}"
+    echo "  You can install it later by running: scripts/install-nvai.sh"
+fi
+
 echo ""
 echo "Happy coding! 🚀"
 
