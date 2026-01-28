@@ -5,7 +5,7 @@
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/epicsaga)
 
-Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like features for **24 languages**.
+Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like features for **26 languages**.
 
 **🌟 Star this repo if you find it useful!**
 
@@ -13,7 +13,7 @@ Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like f
 
 ## ✨ Key Features
 
-- 🚀 **24 Languages** - Full IDE support out of the box
+- 🚀 **26 Languages** - Full IDE support out of the box
 - 🤖 **Dual AI System** - CodeCompanion + nvim-ai CLI integration
 - 🔧 **Zero Config** - Automatic LSP and plugin installation
 - ⚡ **Fast** - Lazy loading with lazy.nvim
@@ -29,6 +29,7 @@ Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like f
 **Mobile & Systems**: Swift, Kotlin, Dart/Flutter, C#, Zig, Nim
 **Functional & Scripting**: Elixir, Haskell, Scala, Lisp (Common Lisp & Scheme), Lua, Ruby, R, Bash
 **Data & Query**: SQL
+**Live Coding & Music**: TidalCycles, Strudel
 
 ## 📚 Documentation
 
@@ -36,7 +37,8 @@ Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like f
 
 - **[Quick Start Guide](docs/QUICKSTART.md)** - Get started in 5 minutes (includes AI setup)
 - **[AI Integration Guide](docs/AI_INTEGRATION.md)** - Complete AI setup: CodeCompanion + nvim-ai CLI
-- **[Language Guide](docs/LANGUAGES.md)** - Detailed setup for 24 languages
+- **[Language Guide](docs/LANGUAGES.md)** - Detailed setup for 26 languages
+- **[Live Coding Guide](docs/LIVE_CODING.md)** - TidalCycles & Strudel setup for music live coding
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Problem-solving guide
 - **[Markdown & Diagrams](docs/MARKDOWN_DIAGRAMS.md)** - Markdown editing and diagram preview
 - **[Deployment](docs/DEPLOYMENT.md)** - Deployment and multi-machine setup
@@ -224,6 +226,24 @@ Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like f
 - **Formatter**: nimpretty formatter
 - **F5/F6**: nim compile --run, nim test
 - **Build modes**: Debug, Release builds
+
+### TidalCycles-Specific
+- **vim-tidal**: Full TidalCycles integration
+- **haskell-language-server**: Haskell LSP support for Tidal
+- **F5/F6**: Start REPL, Evaluate pattern
+- **REPL integration**: ghci with BootTidal.hs
+- **Pattern control**: d1-d9 patterns, hush, solo
+- **SuperCollider integration**: SuperDirt control
+- **Live coding**: Real-time pattern evaluation
+
+### Strudel-Specific
+- **typescript-tools**: JavaScript/TypeScript LSP
+- **vim-tidal**: Strudel REPL integration
+- **F5/F6**: Start REPL, Evaluate pattern
+- **REPL options**: Node.js REPL or web-based
+- **Pattern control**: hush, clear, reset functions
+- **Live coding**: Real-time audio pattern evaluation
+- **Web integration**: Browser-based REPL support
 
 ## Quick Start
 
@@ -652,6 +672,40 @@ ssh user@remote "cd ~/.config/nvim && ./scripts/install.sh"
 | `<Space>nR` | Release build |
 | `<Space>nD` | Debug build |
 
+### TidalCycles-Specific
+| Key | Action |
+|-----|--------|
+| `F5` | Start TidalCycles REPL (ghci) |
+| `F6` | Evaluate current line/selection |
+| `<Space>ts` | Start REPL |
+| `<Space>th` | Hush (stop all patterns) |
+| `<Space>tp` | Play line/selection |
+| `<Space>tb` | Play entire buffer |
+| `<Space>t1-4` | Silence d1-d4 patterns |
+| `<Space>td1-9` | Send to d1-d9 patterns |
+| `<Space>tS` | Start SuperCollider |
+| `<Space>tB` | Boot SuperDirt |
+| `<Space>tH` | Show help |
+| `<Space>tc` | Show config |
+
+### Strudel-Specific
+| Key | Action |
+|-----|--------|
+| `F5` | Start Strudel REPL (Node.js) |
+| `F6` | Evaluate current line/selection |
+| `<Space>ss` | Start REPL |
+| `<Space>sw` | Start web REPL |
+| `<Space>sh` | Hush (stop all patterns) |
+| `<Space>sp` | Play line/selection |
+| `<Space>sb` | Play entire buffer |
+| `<Space>sc` | Clear all patterns |
+| `<Space>sr` | Reset |
+| `<Space>sn` | Run as Node.js script |
+| `<Space>so` | Open web REPL in browser |
+| `<Space>sH` | Open documentation |
+| `<Space>si` | Add missing imports |
+| `<Space>sf` | Fix all issues |
+
 ### Terminal
 | Key | Action |
 |-----|--------|
@@ -850,6 +904,20 @@ All language servers and tools are automatically installed via Mason on first la
 - `nim-langserver`: Nim language server
 - `nimpretty`: Nim formatter
 - Built-in `nim check` for validation
+
+### TidalCycles
+- `haskell-language-server`: Haskell LSP for Tidal syntax
+- `vim-tidal`: TidalCycles REPL integration
+- `ormolu`: Haskell formatter (works with Tidal)
+- External dependencies: ghc, cabal, SuperCollider, SuperDirt
+- Boot file: BootTidal.hs
+
+### Strudel
+- `typescript-language-server`: JavaScript/TypeScript LSP
+- `vim-tidal`: Strudel REPL integration
+- `prettier`: Code formatter
+- `@strudel.cycles/repl`: Strudel REPL (npm package)
+- `@strudel.cycles/web`: Web-based REPL (optional)
 
 ## Formatting
 
@@ -1077,11 +1145,11 @@ If you find this project helpful, please consider:
 
 ## 📊 Project Stats
 
-- **Languages Supported**: 24
-- **LSP Servers**: 24+
-- **Plugins**: 50+
+- **Languages Supported**: 26
+- **LSP Servers**: 26+
+- **Plugins**: 52+
 - **Documentation Pages**: 10+
-- **Lines of Config**: 5000+
+- **Lines of Config**: 5500+
 
 ## 🏆 Acknowledgments
 
