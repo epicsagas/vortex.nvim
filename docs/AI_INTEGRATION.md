@@ -42,8 +42,8 @@ graph TB
 |---------|---------------|-------------|
 | **Keymap** | `<Space>a` | `<Space>n` |
 | **Providers** | Claude, OpenAI, Gemini, xAI, Codex | Claude, OpenAI, Gemini, Cursor |
-| **API Mode** | ✅ HTTP API | ✅ HTTP API |
-| **CLI Mode** | ✅ ACP (OAuth) | ✅ Shell wrapper |
+| **API Mode** | ✅ HTTP API (API Key) | ✅ HTTP API |
+| **CLI Mode** | ✅ ACP (API Key, No OAuth) | ✅ Shell wrapper |
 | **Inline Suggestions** | ✅ | ❌ |
 | **Project Context** | ✅ (via ACP) | ✅ |
 | **External CLI** | ❌ | ✅ |
@@ -66,9 +66,9 @@ Unified AI integration supporting both **HTTP API** and **CLI modes** via Agent 
 
 ### CLI Mode (ACP - Agent Client Protocol)
 - Stateful agent sessions with tool execution
-- OAuth or API key authentication
+- **API key authentication only (No OAuth for security)**
 - File system operations, terminal access
-- Supported: Claude, Gemini, Codex
+- Supported: Claude (API key), Gemini, Codex
 
 ## Supported AI Models
 
@@ -81,8 +81,9 @@ Unified AI integration supporting both **HTTP API** and **CLI modes** via Agent 
 
 **CLI Mode (ACP):**
 - Requires: `claude-code-acp` adapter
-- Auth: OAuth token (`CLAUDE_CODE_OAUTH_TOKEN`)
+- Auth: **API key only** (`ANTHROPIC_API_KEY`) - **No OAuth for security**
 - Features: File operations, tool execution, session management
+- Note: OAuth authentication removed to prevent policy violations
 
 ### 2. **OpenAI**
 - gpt-4o (default)
@@ -130,7 +131,7 @@ Unified AI integration supporting both **HTTP API** and **CLI modes** via Agent 
 This will:
 1. Install ACP adapters (claude-code-acp, gemini-cli)
 2. Configure providers (Claude, Gemini, OpenAI, etc.)
-3. Set up OAuth/API keys interactively
+3. Set up API keys interactively (No OAuth)
 4. Update your shell configuration
 
 ### Manual Installation
@@ -174,35 +175,6 @@ npm install -g @zed-industries/codex-acp
 
 ---
 
-#### 3. Set Up OAuth (for CLI mode)
-
-**Claude OAuth:**
-```bash
-# Get OAuth token
-claude setup-token
-# → Browser opens → Authorize → Copy token (starts with sk-ant-oat)
-
-# Add to shell config
-echo 'export CLAUDE_CODE_OAUTH_TOKEN="sk-ant-oat..."' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**Gemini OAuth:**
-```bash
-# OAuth will prompt on first use with oauth-personal mode
-# Or use API key:
-echo 'export GEMINI_API_KEY="AIza..."' >> ~/.zshrc
-```
-
-**Codex OAuth:**
-```bash
-# ChatGPT OAuth will prompt on first use with chatgpt mode
-# Or use OpenAI API key:
-echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
-```
-
----
-
 ### 2. Set Environment Variables (for HTTP API mode)
 
 #### macOS/Linux (Bash/Zsh)
@@ -210,14 +182,11 @@ echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
 Add to **~/.zshrc** or **~/.bashrc**:
 
 ```bash
-# AI API Keys (HTTP API mode)
-export ANTHROPIC_API_KEY="sk-ant-..."  # Claude
+# AI API Keys
+export ANTHROPIC_API_KEY="sk-ant-..."  # Claude (API mode only)
 export OPENAI_API_KEY="sk-..."         # OpenAI
-export GEMINI_API_KEY="AIza..."        # Gemini
+export GEMINI_API_KEY="AIza..."        # Gemini (API + CLI mode)
 export XAI_API_KEY="xai-..."           # xAI (Grok)
-
-# OAuth Tokens (CLI/ACP mode)
-export CLAUDE_CODE_OAUTH_TOKEN="sk-ant-oat..."  # Claude CLI
 ```
 
 **Apply changes**:
@@ -286,7 +255,9 @@ Edit `~/.config/nvim/config/nvim-ai-config.yaml`:
 default_provider: anthropic  # or openai, gemini, xai
 
 # For CLI mode (stateful, with tool execution)
-default_provider: claude     # Uses claude-code-acp (OAuth)
+default_provider: claude     # Uses claude-code-acp (API key, no OAuth)
+# OR
+default_provider: anthropic  # Uses Anthropic HTTP API (API key)
 # or
 default_provider: gemini_cli # Uses Gemini CLI (OAuth or API key)
 ```
@@ -337,12 +308,12 @@ default_provider: gemini_cli # Uses Gemini CLI (OAuth or API key)
 ```
 1. Press <Space>am
 2. Choose AI provider:
-   - anthropic (Claude)
+   - claude_code (Claude CLI - API Key)
+   - anthropic (Claude API)
+   - gemini_cli (Gemini CLI)
+   - gemini (Gemini API)
    - openai (GPT)
-   - gemini (Gemini)
    - xai (Grok)
-   - claude_code (Agent)
-   - codex (CLI)
    - gemini_cli (Agent)
    - cursor_agent (CLI)
 ```

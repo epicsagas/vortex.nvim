@@ -177,65 +177,22 @@ for provider in "${PROVIDERS[@]}"; do
   case $provider in
     1)
       print_header "Claude Setup"
-      
-      # Ask whether to use CLI or API
-      if prompt_yn "Use Claude CLI mode? (ACP adapter already installed)"; then
-        # CLI mode: claude-code-acp was installed earlier
+
+      # Ask whether to use CLI or API mode
+      if prompt_yn "Use Claude CLI mode? (API key based, no OAuth)"; then
+        # CLI mode: claude-code-acp with API key
         if [[ -z "$SELECTED_DEFAULT_PROVIDER" ]]; then
           SELECTED_DEFAULT_PROVIDER="claude"
         fi
-        print_success "CLI mode selected: using claude-code-acp adapter"
-
-        # OAuth token setup for Claude CLI
-        print_header "Claude OAuth Setup"
-        print_info "Claude CLI requires OAuth authentication"
-
-        if prompt_yn "Set up OAuth token now?" "y"; then
-          print_info "Opening OAuth setup... (browser will open)"
-          print_warn "After authorization, you'll see a token starting with 'cct_'"
-          echo ""
-
-          # Run claude setup-token
-          if claude setup-token; then
-            echo ""
-            print_info "Copy the OAuth token from above (yellow text starting with 'cct_')"
-            read -p "Enter your OAuth token: " OAUTH_TOKEN
-
-            if [[ -n "$OAUTH_TOKEN" ]]; then
-              # Detect shell
-              if [[ -n "${ZSH_VERSION:-}" ]]; then
-                SHELL_RC="$HOME/.zshrc"
-              else
-                SHELL_RC="$HOME/.bashrc"
-              fi
-
-              # Add to shell RC
-              if ! grep -q "CLAUDE_CODE_OAUTH_TOKEN" "$SHELL_RC"; then
-                echo "" >> "$SHELL_RC"
-                echo "# Claude Code OAuth Token" >> "$SHELL_RC"
-                echo "export CLAUDE_CODE_OAUTH_TOKEN=\"$OAUTH_TOKEN\"" >> "$SHELL_RC"
-                print_success "OAuth token added to $SHELL_RC"
-              fi
-
-              # Set for current session
-              export CLAUDE_CODE_OAUTH_TOKEN="$OAUTH_TOKEN"
-              print_success "OAuth token configured successfully"
-            else
-              print_warn "No token entered. You'll need to set CLAUDE_CODE_OAUTH_TOKEN manually."
-            fi
-          else
-            print_warn "OAuth setup failed or was cancelled"
-            print_info "You can run 'claude setup-token' manually later"
-          fi
-        else
-          print_info "Skipping OAuth setup"
-          print_warn "Remember to set CLAUDE_CODE_OAUTH_TOKEN before using Claude CLI mode"
-        fi
+        print_success "CLI mode selected: using claude-code-acp with ANTHROPIC_API_KEY"
+        print_info "Note: Uses API key instead of OAuth for security"
       else
         # Use API adapter
         if [[ -z "$SELECTED_DEFAULT_PROVIDER" ]]; then
           SELECTED_DEFAULT_PROVIDER="anthropic"
         fi
+        print_success "API mode selected: using Anthropic HTTP API"
+      fi
         
         if prompt_yn "Configure Claude API key?"; then
           read -p "Enter your Anthropic API key (sk-ant-...): " ANTHROPIC_KEY

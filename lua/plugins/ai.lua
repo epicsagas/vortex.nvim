@@ -68,7 +68,7 @@ return {
 
         -- Map providers to their adapters based on mode
         if provider == "claude" and config and config.mode == "cli" then
-          return "claude_code" -- ACP adapter
+          return "claude_code" -- ACP adapter (API key based)
         elseif provider == "gemini" and config and config.mode == "cli" then
           return "gemini_cli" -- ACP adapter (native)
         end
@@ -117,11 +117,11 @@ return {
         adapters = {
           -- ACP adapters (Agent Client Protocol) for CLI mode
           acp = {
-            -- Claude Code ACP adapter
+            -- Claude Code ACP adapter (API key based, no OAuth)
             claude_code = function()
               return require("codecompanion.adapters").extend("claude_code", {
                 env = {
-                  CLAUDE_CODE_OAUTH_TOKEN = "CLAUDE_CODE_OAUTH_TOKEN",
+                  ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY",
                 },
               })
             end,
@@ -130,7 +130,7 @@ return {
             gemini_cli = function()
               return require("codecompanion.adapters").extend("gemini_cli", {
                 defaults = {
-                  auth_method = "gemini-api-key", -- or "oauth-personal" or "vertex-ai"
+                  auth_method = "gemini-api-key", -- or "vertex-ai"
                 },
                 env = {
                   GEMINI_API_KEY = "GEMINI_API_KEY",
@@ -352,7 +352,7 @@ return {
       -- Model selection
       keymap("n", "<leader>am", function()
         local models = {
-          "claude_code (Claude CLI)",
+          "claude_code (Claude CLI - API Key)",
           "anthropic (Claude API)",
           "gemini_cli (Gemini CLI)",
           "gemini (Gemini API)",
@@ -405,7 +405,7 @@ return {
 
         -- Map adapter name to display string
         local adapter_to_display = {
-          claude_code = "claude_code (Claude CLI)",
+          claude_code = "claude_code (Claude CLI - API Key)",
           anthropic = "anthropic (Claude API)",
           gemini_cli = "gemini_cli (Gemini CLI)",
           gemini = "gemini (Gemini API)",
@@ -422,7 +422,8 @@ return {
               local match = line:match("^%s*default_provider:%s*([%w_]+)")
               if match then
                 local provider_to_display = {
-                  claude = "claude_code (Claude CLI)",
+                  claude = "claude_code (Claude CLI - API Key)",
+                  claude_code = "claude_code (Claude CLI - API Key)",
                   anthropic = "anthropic (Claude API)",
                   gemini = "gemini (Gemini API)",
                   gemini_cli = "gemini_cli (Gemini CLI)",

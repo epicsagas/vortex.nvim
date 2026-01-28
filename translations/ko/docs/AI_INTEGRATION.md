@@ -40,8 +40,8 @@ graph TB
 |---------|---------------|-------------|
 | **키맵** | `<Space>a` | `<Space>n` |
 | **제공자** | Claude, OpenAI, Gemini, xAI, Codex | Claude, OpenAI, Gemini, Cursor |
-| **API 모드** | ✅ HTTP API | ✅ HTTP API |
-| **CLI 모드** | ✅ ACP (OAuth) | ✅ Shell 래퍼 |
+| **API 모드** | ✅ HTTP API (API Key) | ✅ HTTP API |
+| **CLI 모드** | ✅ ACP (API Key, OAuth 제거) | ✅ Shell 래퍼 |
 | **인라인 제안** | ✅ | ❌ |
 | **프로젝트 컨텍스트** | ✅ (ACP 경유) | ✅ |
 | **외부 CLI** | ❌ | ✅ |
@@ -64,9 +64,9 @@ graph TB
 
 ### CLI 모드 (ACP - Agent Client Protocol)
 - 도구 실행을 포함한 상태 저장 에이전트 세션
-- OAuth 또는 API 키 인증
+- **API 키 인증만 사용 (보안을 위해 OAuth 제거)**
 - 파일 시스템 작업, 터미널 액세스
-- 지원: Claude, Gemini, Codex
+- 지원: Claude (API 키), Gemini, Codex
 
 ## 지원되는 AI 모델
 
@@ -79,8 +79,9 @@ graph TB
 
 **CLI 모드 (ACP):**
 - 필수: `claude-code-acp` 어댑터
-- 인증: OAuth 토큰 (`CLAUDE_CODE_OAUTH_TOKEN`)
+- 인증: **API 키만 사용** (`ANTHROPIC_API_KEY`) - **보안을 위해 OAuth 제거**
 - 기능: 파일 작업, 도구 실행, 세션 관리
+- 참고: 정책 위반 방지를 위해 OAuth 인증 제거됨
 
 ### 2. **OpenAI**
 - gpt-4o (기본값)
@@ -128,7 +129,7 @@ graph TB
 다음 작업이 자동으로 수행됩니다:
 1. ACP 어댑터 설치 (claude-code-acp, gemini-cli)
 2. 제공자 구성 (Claude, Gemini, OpenAI 등)
-3. 대화식으로 OAuth/API 키 설정
+3. 대화식으로 API 키 설정 (OAuth 없음)
 4. 셸 구성 업데이트
 
 ### 수동 설치
@@ -172,35 +173,6 @@ npm install -g @zed-industries/codex-acp
 
 ---
 
-#### 3. OAuth 설정 (CLI 모드용)
-
-**Claude OAuth:**
-```bash
-# OAuth 토큰 받기
-claude setup-token
-# → 브라우저 열림 → 인증 → 토큰 복사 (sk-ant-oat로 시작)
-
-# 셸 구성에 추가
-echo 'export CLAUDE_CODE_OAUTH_TOKEN="sk-ant-oat..."' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**Gemini OAuth:**
-```bash
-# oauth-personal 모드로 처음 사용 시 OAuth 프롬프트 표시
-# 또는 API 키 사용:
-echo 'export GEMINI_API_KEY="AIza..."' >> ~/.zshrc
-```
-
-**Codex OAuth:**
-```bash
-# chatgpt 모드로 처음 사용 시 ChatGPT OAuth 프롬프트 표시
-# 또는 OpenAI API 키 사용:
-echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
-```
-
----
-
 ### 2. 환경 변수 설정 (HTTP API 모드용)
 
 #### macOS/Linux (Bash/Zsh)
@@ -208,14 +180,11 @@ echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc
 **~/.zshrc** 또는 **~/.bashrc**에 추가:
 
 ```bash
-# AI API Keys (HTTP API 모드)
-export ANTHROPIC_API_KEY="sk-ant-..."  # Claude
+# AI API 키
+export ANTHROPIC_API_KEY="sk-ant-..."  # Claude (API 모드만)
 export OPENAI_API_KEY="sk-..."         # OpenAI
-export GEMINI_API_KEY="AIza..."        # Gemini
+export GEMINI_API_KEY="AIza..."        # Gemini (API + CLI 모드)
 export XAI_API_KEY="xai-..."           # xAI (Grok)
-
-# OAuth 토큰 (CLI/ACP 모드)
-export CLAUDE_CODE_OAUTH_TOKEN="sk-ant-oat..."  # Claude CLI
 ```
 
 **변경사항 적용**:
@@ -284,7 +253,9 @@ export XAI_API_KEY=$(bw get password "xAI API")
 default_provider: anthropic  # 또는 openai, gemini, xai
 
 # CLI 모드용 (상태 저장, 도구 실행 포함)
-default_provider: claude     # claude-code-acp 사용 (OAuth)
+default_provider: claude     # claude-code-acp 사용 (API 키, OAuth 없음)
+# 또는
+default_provider: anthropic  # Anthropic HTTP API 사용 (API 키)
 # 또는
 default_provider: gemini_cli # Gemini CLI 사용 (OAuth 또는 API 키)
 ```
