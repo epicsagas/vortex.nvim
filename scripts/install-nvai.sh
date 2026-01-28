@@ -194,27 +194,26 @@ for provider in "${PROVIDERS[@]}"; do
         print_success "API mode selected: using Anthropic HTTP API"
       fi
         
-        if prompt_yn "Configure Claude API key?"; then
-          read -p "Enter your Anthropic API key (sk-ant-...): " ANTHROPIC_KEY
+      if prompt_yn "Configure Claude API key?"; then
+        read -p "Enter your Anthropic API key (sk-ant-...): " ANTHROPIC_KEY
 
-          # Detect shell
-          if [[ -n "${ZSH_VERSION:-}" ]]; then
-            SHELL_RC="$HOME/.zshrc"
-          else
-            SHELL_RC="$HOME/.bashrc"
-          fi
-
-          # Add to shell RC
-          if ! grep -q "ANTHROPIC_API_KEY" "$SHELL_RC"; then
-            echo "" >> "$SHELL_RC"
-            echo "# Anthropic Claude API" >> "$SHELL_RC"
-            echo "export ANTHROPIC_API_KEY=\"$ANTHROPIC_KEY\"" >> "$SHELL_RC"
-            print_success "API key added to $SHELL_RC"
-          fi
-
-          # Set for current session
-          export ANTHROPIC_API_KEY="$ANTHROPIC_KEY"
+        # Detect shell
+        if [[ -n "${ZSH_VERSION:-}" ]]; then
+          SHELL_RC="$HOME/.zshrc"
+        else
+          SHELL_RC="$HOME/.bashrc"
         fi
+
+        # Add to shell RC
+        if ! grep -q "ANTHROPIC_API_KEY" "$SHELL_RC"; then
+          echo "" >> "$SHELL_RC"
+          echo "# Anthropic Claude API" >> "$SHELL_RC"
+          echo "export ANTHROPIC_API_KEY=\"$ANTHROPIC_KEY\"" >> "$SHELL_RC"
+          print_success "API key added to $SHELL_RC"
+        fi
+
+        # Set for current session
+        export ANTHROPIC_API_KEY="$ANTHROPIC_KEY"
       fi
       ;;
 
