@@ -30,6 +30,9 @@ dap.log
 .cache/nvim-ai/
 config/nvim-ai-config.yaml
 
+# Personal theme selection
+vortex_theme.txt
+
 # Test files
 test_*.rs
 test_*.go

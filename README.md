@@ -994,17 +994,106 @@ Press `<Space>e` to toggle the file tree:
 
 ## Customization
 
-### Changing Color Scheme
-Edit `~/.config/nvim/lua/plugins/colorscheme.lua` and change:
-```lua
-vim.cmd.colorscheme("tokyonight")
+### Changing Theme
+
+Vortex.nvim supports 11 color themes out of the box. You can change themes in three ways:
+
+#### During Installation
+
+The installer (`./scripts/install.sh`) will prompt you to select a theme from 11 options.
+Each theme link below takes you to the official repository where you can see screenshots:
+
+1. **system** - Adapts to your terminal's background color
+2. **[tokyonight](https://github.com/folke/tokyonight.nvim)** ⭐ - Tokyo Night theme (default)
+3. **[everforest](https://github.com/sainnhe/everforest)** - Everforest theme
+4. **[ayu](https://github.com/Shatur/neovim-ayu)** - Ayu dark theme
+5. **[catppuccin](https://github.com/catppuccin/nvim)** - Catppuccin Mocha theme
+6. **[catppuccin-macchiato](https://github.com/catppuccin/nvim)** - Catppuccin Macchiato
+7. **[gruvbox](https://github.com/ellisonleao/gruvbox.nvim)** - Gruvbox theme
+8. **[kanagawa](https://github.com/rebelot/kanagawa.nvim)** - Kanagawa theme
+9. **[nord](https://github.com/shaunsingh/nord.nvim)** - Nord theme
+10. **matrix** - Hacker-style green on black (custom)
+11. **[one-dark](https://github.com/navarasu/onedark.nvim)** - Atom One Dark theme
+
+💡 **Tip:** Visit the GitHub links above to see theme screenshots before choosing!
+
+#### After Installation
+
+**Method 1: Using Telescope (Recommended)**
+```vim
+" Press Space + ft to open theme picker
+<Space>ft
+```
+- Browse themes with arrow keys
+- Press Enter to apply
+- Theme selection is saved automatically
+
+**Method 2: Using Command**
+```vim
+" Show current theme
+:VortexTheme
+
+" Change to a specific theme
+:VortexTheme gruvbox
+:VortexTheme kanagawa
+:VortexTheme matrix
 ```
 
-Popular alternatives:
-- `catppuccin`
-- `gruvbox`
-- `nord`
-- `onedark`
+The command supports tab completion for theme names.
+
+**Available Themes (with previews):**
+
+| Theme | Description | Preview |
+|-------|-------------|---------|
+| `system` | Terminal default colors | Uses your terminal's native color scheme |
+| `tokyonight` ⭐ | Tokyo Night (default) | [Preview](https://github.com/folke/tokyonight.nvim) |
+| `everforest` | Everforest theme | [Preview](https://github.com/sainnhe/everforest) |
+| `ayu` | Ayu Dark theme | [Preview](https://github.com/Shatur/neovim-ayu) |
+| `catppuccin` | Catppuccin Mocha | [Preview](https://github.com/catppuccin/nvim) |
+| `catppuccin-macchiato` | Catppuccin Macchiato | [Preview](https://github.com/catppuccin/nvim) |
+| `gruvbox` | Gruvbox theme | [Preview](https://github.com/ellisonleao/gruvbox.nvim) |
+| `kanagawa` | Kanagawa theme | [Preview](https://github.com/rebelot/kanagawa.nvim) |
+| `nord` | Nord theme | [Preview](https://github.com/shaunsingh/nord.nvim) |
+| `matrix` | Hacker-style green on black | Custom theme (no preview) |
+| `one-dark` | Atom One Dark theme | [Preview](https://github.com/navarasu/onedark.nvim) |
+
+⭐ = Default theme
+
+Your theme preference is saved to `~/.local/share/nvim/vortex_theme.txt` and persists across sessions.
+
+**Theme Screenshots:**
+
+<details>
+<summary>Click to see theme examples</summary>
+
+- **Tokyonight** - Clean, modern dark theme with excellent contrast
+  - GitHub: [folke/tokyonight.nvim](https://github.com/folke/tokyonight.nvim)
+  
+- **Everforest** - Comfortable green forest color scheme
+  - GitHub: [sainnhe/everforest](https://github.com/sainnhe/everforest)
+  
+- **Ayu** - Simple, bright, and elegant theme
+  - GitHub: [Shatur/neovim-ayu](https://github.com/Shatur/neovim-ayu)
+  
+- **Catppuccin** - Soothing pastel theme with great readability
+  - GitHub: [catppuccin/nvim](https://github.com/catppuccin/nvim)
+  
+- **Gruvbox** - Retro groove color scheme with warm colors
+  - GitHub: [ellisonleao/gruvbox.nvim](https://github.com/ellisonleao/gruvbox.nvim)
+  
+- **Kanagawa** - Dark theme inspired by famous painting
+  - GitHub: [rebelot/kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim)
+  
+- **Nord** - Arctic, north-bluish color palette
+  - GitHub: [shaunsingh/nord.nvim](https://github.com/shaunsingh/nord.nvim)
+  
+- **Matrix** - Classic hacker aesthetic (green on black)
+  - Custom implementation included in Vortex
+  
+- **One Dark** - Atom's iconic One Dark theme
+  - GitHub: [navarasu/onedark.nvim](https://github.com/navarasu/onedark.nvim)
+
+</details>
 
 ### Adding Plugins
 Create a new file in `~/.config/nvim/lua/plugins/`:

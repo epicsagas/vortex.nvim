@@ -58,5 +58,33 @@ vim.filetype.add({
   },
 })
 
+-- Theme management command
+vim.api.nvim_create_user_command("VortexTheme", function(opts)
+  local theme = require("core.theme")
+  if opts.args == "" then
+    -- Show current theme
+    local current = theme.load_theme()
+    print("Current theme: " .. current)
+  else
+    -- Change theme
+    local theme_name = opts.args
+    if theme.THEMES[theme_name] then
+      theme.save_theme(theme_name)
+      theme.apply_theme(theme_name)
+    else
+      vim.notify(
+        "Invalid theme: " .. theme_name .. ". Available themes: " .. table.concat(theme.get_theme_names(), ", "),
+        vim.log.levels.ERROR
+      )
+    end
+  end
+end, {
+  nargs = "?",
+  complete = function()
+    return require("core.theme").get_theme_names()
+  end,
+  desc = "Change vortex theme",
+})
+
 -- Load plugins
 require("lazy").setup("plugins")

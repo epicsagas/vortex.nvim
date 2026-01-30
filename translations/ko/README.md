@@ -936,17 +936,106 @@ go.nvim 및 Delve를 통해 자동으로 구성됩니다.
 
 ## 커스터마이징
 
-### 색상 스킴 변경
-`~/.config/nvim/lua/plugins/colorscheme.lua`를 편집하고 변경:
-```lua
-vim.cmd.colorscheme("tokyonight")
+### 테마 변경
+
+Vortex.nvim은 11개의 색상 테마를 기본으로 지원합니다. 세 가지 방법으로 테마를 변경할 수 있습니다:
+
+#### 설치 중 테마 선택
+
+설치 프로그램(`./scripts/install.sh`)에서 11개 옵션 중 테마를 선택하도록 요청합니다.
+각 테마 링크를 클릭하면 스크린샷을 볼 수 있는 공식 저장소로 이동합니다:
+
+1. **system** - 터미널 배경색에 자동 적응
+2. **[tokyonight](https://github.com/folke/tokyonight.nvim)** ⭐ - Tokyo Night 테마 (기본값)
+3. **[everforest](https://github.com/sainnhe/everforest)** - Everforest 테마
+4. **[ayu](https://github.com/Shatur/neovim-ayu)** - Ayu 다크 테마
+5. **[catppuccin](https://github.com/catppuccin/nvim)** - Catppuccin Mocha 테마
+6. **[catppuccin-macchiato](https://github.com/catppuccin/nvim)** - Catppuccin Macchiato
+7. **[gruvbox](https://github.com/ellisonleao/gruvbox.nvim)** - Gruvbox 테마
+8. **[kanagawa](https://github.com/rebelot/kanagawa.nvim)** - Kanagawa 테마
+9. **[nord](https://github.com/shaunsingh/nord.nvim)** - Nord 테마
+10. **matrix** - 해커 스타일 녹색/검정 테마 (커스텀)
+11. **[one-dark](https://github.com/navarasu/onedark.nvim)** - Atom One Dark 테마
+
+💡 **팁:** 선택하기 전에 위의 GitHub 링크를 방문하여 테마 스크린샷을 확인하세요!
+
+#### 설치 후 테마 변경
+
+**방법 1: Telescope 사용 (권장)**
+```vim
+" Space + ft를 눌러 테마 선택기 열기
+<Space>ft
+```
+- 화살표 키로 테마 탐색
+- Enter를 눌러 적용
+- 테마 선택이 자동으로 저장됨
+
+**방법 2: 명령어 사용**
+```vim
+" 현재 테마 확인
+:VortexTheme
+
+" 특정 테마로 변경
+:VortexTheme gruvbox
+:VortexTheme kanagawa
+:VortexTheme matrix
 ```
 
-인기 있는 대안:
-- `catppuccin`
-- `gruvbox`
-- `nord`
-- `onedark`
+명령어는 테마 이름 자동 완성을 지원합니다.
+
+**사용 가능한 테마 (미리보기 포함):**
+
+| 테마 | 설명 | 미리보기 |
+|------|------|----------|
+| `system` | 터미널 기본 색상 | 터미널의 기본 색상 구성 사용 |
+| `tokyonight` ⭐ | Tokyo Night (기본값) | [미리보기](https://github.com/folke/tokyonight.nvim) |
+| `everforest` | Everforest 테마 | [미리보기](https://github.com/sainnhe/everforest) |
+| `ayu` | Ayu 다크 테마 | [미리보기](https://github.com/Shatur/neovim-ayu) |
+| `catppuccin` | Catppuccin Mocha | [미리보기](https://github.com/catppuccin/nvim) |
+| `catppuccin-macchiato` | Catppuccin Macchiato | [미리보기](https://github.com/catppuccin/nvim) |
+| `gruvbox` | Gruvbox 테마 | [미리보기](https://github.com/ellisonleao/gruvbox.nvim) |
+| `kanagawa` | Kanagawa 테마 | [미리보기](https://github.com/rebelot/kanagawa.nvim) |
+| `nord` | Nord 테마 | [미리보기](https://github.com/shaunsingh/nord.nvim) |
+| `matrix` | 해커 스타일 녹색/검정 | 커스텀 테마 (미리보기 없음) |
+| `one-dark` | Atom One Dark 테마 | [미리보기](https://github.com/navarasu/onedark.nvim) |
+
+⭐ = 기본 테마
+
+테마 설정은 `~/.local/share/nvim/vortex_theme.txt`에 저장되며 세션 간에 유지됩니다.
+
+**테마 스크린샷:**
+
+<details>
+<summary>클릭하여 테마 예시 보기</summary>
+
+- **Tokyonight** - 깔끔하고 현대적인 다크 테마, 뛰어난 대비
+  - GitHub: [folke/tokyonight.nvim](https://github.com/folke/tokyonight.nvim)
+  
+- **Everforest** - 편안한 녹색 숲 색상 구성
+  - GitHub: [sainnhe/everforest](https://github.com/sainnhe/everforest)
+  
+- **Ayu** - 단순하고 밝고 우아한 테마
+  - GitHub: [Shatur/neovim-ayu](https://github.com/Shatur/neovim-ayu)
+  
+- **Catppuccin** - 부드러운 파스텔 테마, 뛰어난 가독성
+  - GitHub: [catppuccin/nvim](https://github.com/catppuccin/nvim)
+  
+- **Gruvbox** - 따뜻한 색상의 레트로 그루브 색상 구성
+  - GitHub: [ellisonleao/gruvbox.nvim](https://github.com/ellisonleao/gruvbox.nvim)
+  
+- **Kanagawa** - 유명한 그림에서 영감을 받은 다크 테마
+  - GitHub: [rebelot/kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim)
+  
+- **Nord** - 북극의 북쪽 블루 색상 팔레트
+  - GitHub: [shaunsingh/nord.nvim](https://github.com/shaunsingh/nord.nvim)
+  
+- **Matrix** - 클래식 해커 미학 (녹색/검정)
+  - Vortex에 포함된 커스텀 구현
+  
+- **One Dark** - Atom의 상징적인 One Dark 테마
+  - GitHub: [navarasu/onedark.nvim](https://github.com/navarasu/onedark.nvim)
+
+</details>
 
 ### 플러그인 추가
 `~/.config/nvim/lua/plugins/`에 새 파일 생성:

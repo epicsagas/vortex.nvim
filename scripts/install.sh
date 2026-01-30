@@ -8,6 +8,9 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}=== Neovim Configuration Installer ===${NC}"
@@ -249,6 +252,72 @@ if [ "$GO_INSTALLED" = true ]; then
         echo "    go install golang.org/x/tools/cmd/goimports@latest"
     fi
 fi
+
+# Select color theme
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}🎨 Color Theme Selection${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo "Choose your coding environment's look and feel:"
+echo ""
+echo -e "  ${BOLD}1) system${NC}              - Use your terminal's native colors"
+echo -e "     ${DIM}→ Adapts to light/dark terminal theme${NC}"
+echo ""
+echo -e "  ${BOLD}2) tokyonight ⭐${NC}       - Clean, modern dark theme (default)"
+echo -e "     ${DIM}→ Deep blue tones, excellent contrast, easy on the eyes${NC}"
+echo ""
+echo -e "  ${BOLD}3) everforest${NC}          - Comfortable green forest palette"
+echo -e "     ${DIM}→ Soft green/brown tones, relaxing for long coding sessions${NC}"
+echo ""
+echo -e "  ${BOLD}4) ayu${NC}                 - Simple, bright, and elegant"
+echo -e "     ${DIM}→ Warm orange accents, minimalist design${NC}"
+echo ""
+echo -e "  ${BOLD}5) catppuccin${NC}          - Soothing pastel theme (Mocha)"
+echo -e "     ${DIM}→ Soft pastel colors, great readability, modern aesthetic${NC}"
+echo ""
+echo -e "  ${BOLD}6) catppuccin-macchiato${NC} - Warmer pastel variant"
+echo -e "     ${DIM}→ Similar to Mocha but with warmer tones${NC}"
+echo ""
+echo -e "  ${BOLD}7) gruvbox${NC}             - Retro groove with warm colors"
+echo -e "     ${DIM}→ Vintage feel, brown/yellow tones, nostalgic vibe${NC}"
+echo ""
+echo -e "  ${BOLD}8) kanagawa${NC}            - Dark theme inspired by Japanese art"
+echo -e "     ${DIM}→ Deep blues/purples, artistic and sophisticated${NC}"
+echo ""
+echo -e "  ${BOLD}9) nord${NC}                - Arctic, north-bluish color palette"
+echo -e "     ${DIM}→ Cool blue/gray tones, minimalist and calm${NC}"
+echo ""
+echo -e "  ${BOLD}10) matrix${NC}             - Classic hacker aesthetic"
+echo -e "     ${DIM}→ Green on black, retro terminal feel${NC}"
+echo ""
+echo -e "  ${BOLD}11) one-dark${NC}           - Atom's iconic theme"
+echo -e "     ${DIM}→ Balanced colors, familiar to Atom/VS Code users${NC}"
+echo ""
+echo -e "${YELLOW}💡 Tip: You can change themes anytime with 'Space + ft' or ':VortexTheme'${NC}"
+echo ""
+read -p "Enter number (1-11) [default: 2 - tokyonight]: " theme_choice
+
+# Save theme selection
+THEME_FILE="$HOME/.local/share/nvim/vortex_theme.txt"
+mkdir -p "$(dirname "$THEME_FILE")"
+
+case $theme_choice in
+  1) echo "system" > "$THEME_FILE" && SELECTED_THEME="system" ;;
+  2|"") echo "tokyonight" > "$THEME_FILE" && SELECTED_THEME="tokyonight" ;;
+  3) echo "everforest" > "$THEME_FILE" && SELECTED_THEME="everforest" ;;
+  4) echo "ayu" > "$THEME_FILE" && SELECTED_THEME="ayu" ;;
+  5) echo "catppuccin" > "$THEME_FILE" && SELECTED_THEME="catppuccin" ;;
+  6) echo "catppuccin-macchiato" > "$THEME_FILE" && SELECTED_THEME="catppuccin-macchiato" ;;
+  7) echo "gruvbox" > "$THEME_FILE" && SELECTED_THEME="gruvbox" ;;
+  8) echo "kanagawa" > "$THEME_FILE" && SELECTED_THEME="kanagawa" ;;
+  9) echo "nord" > "$THEME_FILE" && SELECTED_THEME="nord" ;;
+  10) echo "matrix" > "$THEME_FILE" && SELECTED_THEME="matrix" ;;
+  11) echo "one-dark" > "$THEME_FILE" && SELECTED_THEME="one-dark" ;;
+  *) echo "tokyonight" > "$THEME_FILE" && SELECTED_THEME="tokyonight" ;;
+esac
+
+echo -e "${GREEN}✓ Theme selected: $SELECTED_THEME${NC}"
 
 # Launch Neovim to install plugins
 echo ""
