@@ -38,9 +38,14 @@ brew install git ripgrep fd
 
 # Tree-sitter CLI (for Swift support)
 brew install tree-sitter-cli
+
+# File preview (images, GIF, PDF, Excel)
+brew install imagemagick chafa poppler xlsx2csv
 ```
 
 > **Note**: Additional language tools (Rust/Go development tools) will be prompted during `install.sh` execution.
+> `imagemagick` is required for inline image rendering. `chafa` enables animated GIF playback.
+> See [Preview Guide](PREVIEW.md) for full details.
 
 ### Linux (Ubuntu/Debian)
 ```bash
@@ -54,6 +59,10 @@ sudo apt install git ripgrep fd-find
 
 # Tree-sitter CLI
 npm install -g tree-sitter-cli
+
+# File preview (images, GIF, PDF, Excel)
+sudo apt install imagemagick chafa poppler-utils
+pip3 install xlsx2csv
 ```
 
 ## Step 3: Write Your First Code (1 minute)

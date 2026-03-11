@@ -1,9 +1,11 @@
 return {
   -- ─────────────────────────────────────────────────────────────────────
   -- Inline image rendering (kitty protocol or ueberzugpp)
-  -- Requirements (choose one):
-  --   Kitty terminal: https://sw.kovidgoyal.net/kitty/
-  --   ueberzugpp:     brew install ueberzugpp
+  -- Requirements:
+  --   ImageMagick : brew install imagemagick   (required by image.nvim)
+  --   Terminal    : Kitty  https://sw.kovidgoyal.net/kitty/
+  --              OR ueberzugpp: brew install ueberzugpp
+  --   GIF animate : brew install chafa          (all terminals)
   -- ─────────────────────────────────────────────────────────────────────
   {
     "3rd/image.nvim",
@@ -17,6 +19,14 @@ return {
         backend = "kitty"
       elseif vim.fn.executable("ueberzugpp") == 1 then
         backend = "ueberzugpp"
+      end
+
+      if vim.fn.executable("magick") == 0 and vim.fn.executable("convert") == 0 then
+        vim.notify(
+          "[Preview] ImageMagick not found. Install: brew install imagemagick",
+          vim.log.levels.WARN
+        )
+        return
       end
 
       local ok, image = pcall(require, "image")
@@ -49,7 +59,7 @@ return {
         },
       })
 
-      -- <leader>Pi : render image file in current buffer
+      -- <leader>Pi : render static image in current buffer
       vim.keymap.set("n", "<leader>Pi", function()
         local file = vim.fn.expand("%:p")
         local ext  = vim.fn.fnamemodify(file, ":e"):lower()
@@ -62,6 +72,72 @@ return {
           vim.notify("Not an image file", vim.log.levels.WARN)
         end
       end, { desc = "Image Preview (inline)" })
+
+      -- ── GIF animated playback via chafa ──────────────────────────────
+      -- :GifPlay [file]  →  opens a floating terminal running chafa
+      -- <leader>Pg       →  shortcut for current buffer's GIF
+      -- Press q inside the window to close
+      -- ─────────────────────────────────────────────────────────────────
+      vim.api.nvim_create_user_command("GifPlay", function(opts)
+        local file = (opts.args ~= "") and opts.args or vim.fn.expand("%:p")
+
+        if vim.fn.executable("chafa") == 0 then
+          vim.notify(
+            "[Preview] chafa not found. Install: brew install chafa",
+            vim.log.levels.WARN
+          )
+          return
+        end
+
+        local ext = vim.fn.fnamemodify(file, ":e"):lower()
+        if ext ~= "gif" then
+          vim.notify("[Preview] GifPlay expects a .gif file", vim.log.levels.WARN)
+          return
+        end
+
+        local width  = math.floor(vim.o.columns * 0.82)
+        local height = math.floor(vim.o.lines   * 0.82)
+        local row    = math.floor((vim.o.lines   - height) / 2)
+        local col    = math.floor((vim.o.columns - width)  / 2)
+
+        local buf = vim.api.nvim_create_buf(false, true)
+        local win = vim.api.nvim_open_win(buf, true, {
+          relative  = "editor",
+          width     = width,
+          height    = height,
+          row       = row,
+          col       = col,
+          style     = "minimal",
+          border    = "rounded",
+          title     = " GIF: " .. vim.fn.fnamemodify(file, ":t") .. " ",
+          title_pos = "center",
+        })
+        -- chafa renders animation; --size matches the window dimensions
+        vim.fn.termopen(string.format(
+          "chafa --size=%dx%d --animate=on %s",
+          width, height - 1, vim.fn.shellescape(file)
+        ))
+        vim.cmd("startinsert")
+
+        -- q closes the floating window
+        vim.keymap.set("t", "q", function()
+          vim.api.nvim_win_close(win, true)
+        end, { buffer = buf, desc = "Close GIF player" })
+      end, {
+        nargs = "?",
+        complete = "file",
+        desc = "Play GIF animation in floating terminal (chafa)",
+      })
+
+      vim.keymap.set("n", "<leader>Pg", function()
+        local file = vim.fn.expand("%:p")
+        local ext  = vim.fn.fnamemodify(file, ":e"):lower()
+        if ext == "gif" then
+          vim.cmd("GifPlay " .. vim.fn.fnameescape(file))
+        else
+          vim.notify("Current file is not a GIF", vim.log.levels.WARN)
+        end
+      end, { desc = "GIF Play (animated)" })
     end,
   },
 
