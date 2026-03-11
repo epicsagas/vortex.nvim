@@ -72,6 +72,7 @@ return {
       })
 
       require("which-key").add({
+        { "<leader>P", group = "Preview" },
         { "<leader>a", group = "AI Assistant" },
         { "<leader>b", group = "Bash" },
         { "<leader>c", group = "Code/C++" },

@@ -50,13 +50,22 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Focus upper window" })
 -- Filetype settings
 vim.filetype.add({
   extension = {
-    puml = "plantuml",
+    puml     = "plantuml",
     plantuml = "plantuml",
+    -- Preview: standalone Mermaid diagrams
+    mmd      = "mermaid",
+    mermaid  = "mermaid",
+    -- Preview: spreadsheets (treated as csv after conversion)
+    csv      = "csv",
+    tsv      = "tsv",
   },
   pattern = {
     [".*%.pu"] = "plantuml",
   },
 })
+
+-- Load custom preview handlers (PDF, Excel, Mermaid standalone)
+require("core.preview").setup()
 
 -- Theme management command
 vim.api.nvim_create_user_command("VortexTheme", function(opts)
