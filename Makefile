@@ -31,13 +31,15 @@ install: ## Install vortex.nvim (runs scripts/install.sh)
 # ── Update ────────────────────────────────────────────────────────────────────
 update: ## Pull latest changes and sync plugins
 	@printf "$(BOLD)$(BLUE)=== Updating vortex.nvim ===$(NC)\n"
-	@if [ "$(CURDIR)" = "$(NVIM_CONFIG)" ]; then \
-	  git -C $(NVIM_CONFIG) pull --ff-only; \
+	@REAL_CUR=$$(realpath "$(CURDIR)" 2>/dev/null || echo "$(CURDIR)"); \
+	REAL_CFG=$$(realpath "$(NVIM_CONFIG)" 2>/dev/null || echo "$(NVIM_CONFIG)"); \
+	if [ "$$REAL_CUR" = "$$REAL_CFG" ]; then \
+	  git -C "$(NVIM_CONFIG)" pull --ff-only; \
 	else \
 	  git pull --ff-only; \
 	  if [ -d "$(NVIM_CONFIG)" ]; then \
 	    printf "$(YELLOW)Syncing files to $(NVIM_CONFIG)...$(NC)\n"; \
-	    cp -r $(CURDIR)/. $(NVIM_CONFIG)/; \
+	    rsync -a --exclude='.git' "$(CURDIR)/" "$(NVIM_CONFIG)/"; \
 	  fi; \
 	fi
 	@$(MAKE) --no-print-directory plugins
