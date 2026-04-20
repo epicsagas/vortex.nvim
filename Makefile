@@ -15,7 +15,7 @@ RED   := \033[0;31m
 BLUE  := \033[0;34m
 NC    := \033[0m
 
-.PHONY: help install update uninstall status clean plugins
+.PHONY: help install link update uninstall status clean plugins
 
 help: ## Show this help
 	@printf "$(BOLD)vortex.nvim$(NC)\n\n"
@@ -24,9 +24,16 @@ help: ## Show this help
 	@awk 'BEGIN{FS=":.*##"} /^[a-zA-Z_-]+:.*##/{printf "  $(BLUE)%-12s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # ── Install ───────────────────────────────────────────────────────────────────
-install: ## Install vortex.nvim (runs scripts/install.sh)
+install: ## Install vortex.nvim (runs scripts/install.sh + links vortex binary)
 	@printf "$(BOLD)$(GREEN)=== Installing vortex.nvim ===$(NC)\n"
 	@bash $(SCRIPTS_DIR)/install.sh
+	@$(MAKE) --no-print-directory link
+
+link: ## Symlink vortex binary to /usr/local/bin
+	@chmod +x $(SCRIPTS_DIR)/vortex
+	@ln -sf $(SCRIPTS_DIR)/vortex /usr/local/bin/vortex && \
+	  printf "$(GREEN)✓$(NC) vortex linked to /usr/local/bin/vortex\n" || \
+	  printf "$(YELLOW)⚠$(NC) Could not link (try: sudo make link)\n"
 
 # ── Update ────────────────────────────────────────────────────────────────────
 update: ## Pull latest changes and sync plugins

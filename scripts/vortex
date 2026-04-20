@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# vortex - vortex.nvim CLI manager
+set -euo pipefail
+
+NVIM_CONFIG="$HOME/.config/nvim"
+NVIM_DATA="$HOME/.local/share/nvim"
+NVIM_STATE="$HOME/.local/state/nvim"
+NVIM_CACHE="$HOME/.cache/nvim"
+
+BOLD='\033[1m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+ok()   { printf "${GREEN}✓${NC} %s\n" "$*"; }
+info() { printf "${BLUE}ℹ${NC} %s\n" "$*"; }
+warn() { printf "${YELLOW}⚠${NC} %s\n" "$*"; }
+err()  { printf "${RED}✗${NC} %s\n" "$*" >&2; }
+header() { printf "\n${BOLD}${BLUE}=== %s ===${NC}\n\n" "$*"; }
+
+cmd_help() {
+  printf "${BOLD}vortex${NC} — vortex.nvim CLI manager\n\n"
+  printf "${BOLD}Usage:${NC} vortex <command>\n\n"
+  printf "${BOLD}Commands:${NC}\n"
+  printf "  ${BLUE}%-12s${NC} %s\n" \
+    "install"   "Install vortex.nvim (full setup)" \
+    "update"    "Pull latest changes and sync plugins" \
+    "plugins"   "Sync lazy.nvim plugins only" \
+    "status"    "Show installation and tool status" \
+    "uninstall" "Remove config and data (backs up config)" \
+    "clean"     "Clear Lua cache only (keeps plugins)" \
+    "help"      "Show this help"
+}
+
+cmd_install() {
+  header "Installing vortex.nvim"
+  local script
+  script="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "$0")")" && pwd)/install.sh"
+  if [[ ! -f "$script" ]]; then
+    err "install.sh not found at $script"
+    exit 1
+  fi
+  bash "$script"
+}
+
+cmd_update() {
+  header "Updating vortex.nvim"
+  if [[ -d "$NVIM_CONFIG/.git" ]]; then
+    git -C "$NVIM_CONFIG" pull --ff-only
+  else
+    warn "No git repo found at $NVIM_CONFIG — skipping pull"
+  fi
+  cmd_plugins
+  ok "Update complete"
+}
+
+cmd_plugins() {
+  info "Syncing plugins..."
+  nvim --headless "+Lazy! sync" +qa 2>/dev/null \
+    && ok "Plugins synced" \
+    || warn "Plugin sync finished with warnings"
+}
+
+cmd_status() {
+  printf "${BOLD}=== vortex.nvim status ===${NC}\n\n"
+
+  printf "${BOLD}Neovim config:${NC}\n"
+  if [[ -d "$NVIM_CONFIG" ]]; then
+    ok "$NVIM_CONFIG"
+    if [[ -d "$NVIM_CONFIG/.git" ]]; then
+      printf "  branch : %s\n" "$(git -C "$NVIM_CONFIG" branch --show-current 2>/dev/null)"
+      printf "  commit : %s\n" "$(git -C "$NVIM_CONFIG" log --oneline -1 2>/dev/null)"
+    fi
+  else
+    err "not installed at $NVIM_CONFIG"
+  fi
+
+  printf "\n${BOLD}Theme:${NC}\n"
+  if [[ -f "$NVIM_DATA/vortex_theme.txt" ]]; then
+    ok "$(cat "$NVIM_DATA/vortex_theme.txt")"
+  else
+    warn "not set (default: tokyonight)"
+  fi
+
+  printf "\n${BOLD}Plugins (lazy.nvim):${NC}\n"
+  if [[ -d "$NVIM_DATA/lazy/lazy.nvim" ]]; then
+    local count
+    count=$(ls -d "$NVIM_DATA/lazy"/*/ 2>/dev/null | wc -l | tr -d ' ') || count=0
+    ok "$count plugins installed"
+  else
+    err "lazy.nvim not found"
+  fi
+
+  printf "\n${BOLD}nvim-ai config:${NC}\n"
+  local ai_config="$NVIM_CONFIG/config/nvim-ai-config.yaml"
+  if [[ -f "$ai_config" ]]; then
+    local provider
+    provider=$(grep "^default_provider:" "$ai_config" 2>/dev/null | sed 's/default_provider: *//' || echo "unknown")
+    ok "provider: $provider"
+  else
+    warn "not configured"
+  fi
+
+  printf "\n${BOLD}Required tools:${NC}\n"
+  local ver
+  for tool in nvim git gcc make curl rg fd; do
+    if command -v "$tool" > /dev/null 2>&1; then
+      ver=$("$tool" --version 2>&1 | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1) || ver=""
+      printf "  ${GREEN}✓${NC} %-10s %s\n" "$tool" "$ver"
+    else
+      printf "  ${RED}✗${NC} %s\n" "$tool"
+    fi
+  done
+
+  printf "\n${BOLD}Optional tools:${NC}\n"
+  for tool in magick chafa node npm go rustc python3; do
+    if command -v "$tool" > /dev/null 2>&1; then
+      ver=$("$tool" --version 2>&1 | head -1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1) || ver=""
+      printf "  ${GREEN}✓${NC} %-12s %s\n" "$tool" "$ver"
+    else
+      printf "  ${YELLOW}-${NC} %s\n" "$tool"
+    fi
+  done
+}
+
+cmd_uninstall() {
+  header "Uninstall vortex.nvim"
+  printf "${YELLOW}This will remove:${NC}\n"
+  printf "  %s\n" "$NVIM_CONFIG" "$NVIM_DATA" "$NVIM_STATE" "$NVIM_CACHE"
+  printf "\n${RED}Are you sure? [y/N] ${NC}"
+  read -r REPLY
+  case "$REPLY" in
+    [yY]*)
+      local backup="$HOME/.config/nvim.backup.$(date +%Y%m%d_%H%M%S)"
+      if [[ -d "$NVIM_CONFIG" ]]; then
+        mv "$NVIM_CONFIG" "$backup"
+        ok "Config backed up to $backup"
+      fi
+      rm -rf "$NVIM_DATA" "$NVIM_STATE" "$NVIM_CACHE"
+      ok "vortex.nvim removed"
+      ;;
+    *) warn "Aborted" ;;
+  esac
+}
+
+cmd_clean() {
+  info "Cleaning Lua cache..."
+  rm -rf "$NVIM_CACHE/nvim" "$NVIM_STATE/nvim/shada"
+  ok "Cache cleared"
+}
+
+case "${1:-help}" in
+  install)   cmd_install ;;
+  update)    cmd_update ;;
+  plugins)   cmd_plugins ;;
+  status)    cmd_status ;;
+  uninstall) cmd_uninstall ;;
+  clean)     cmd_clean ;;
+  help|--help|-h) cmd_help ;;
+  *)
+    err "Unknown command: $1"
+    printf "\n"
+    cmd_help
+    exit 1
+    ;;
+esac
