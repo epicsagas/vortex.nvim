@@ -216,6 +216,58 @@ if ! command -v fd &> /dev/null; then
     echo "           apt install fd-find  # Ubuntu/Debian"
 fi
 
+# Check and install ImageMagick (required by image.nvim)
+if ! command -v magick &> /dev/null; then
+    echo -e "${YELLOW}⚠ ImageMagick not found (required for inline image preview)${NC}"
+    if [[ "$OSTYPE" == "darwin"* ]] && command -v brew &> /dev/null; then
+        read -p "Install ImageMagick via Homebrew? (y/n): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            brew install imagemagick
+            echo -e "${GREEN}✓ ImageMagick installed${NC}"
+        fi
+    else
+        echo "  Install: brew install imagemagick  # macOS"
+        echo "           apt install imagemagick   # Ubuntu/Debian"
+    fi
+fi
+
+# Register a system font in ImageMagick type.xml (macOS only)
+# brew's ImageMagick ships with an empty type.xml, causing image.nvim to crash
+# with "unable to read font" when converting images to PNG.
+fix_imagemagick_fonts_macos() {
+    local type_xml
+    type_xml="$(brew --prefix imagemagick 2>/dev/null)/etc/ImageMagick-7/type.xml"
+    [ -f "$type_xml" ] || return 0
+
+    # Already has a <type ...> entry — nothing to do
+    grep -q '<type' "$type_xml" && return 0
+
+    local font_path="/Library/Fonts/Arial Unicode.ttf"
+    [ -f "$font_path" ] || font_path=""
+
+    # Fall back to the first available system TTF
+    if [ -z "$font_path" ]; then
+        font_path=$(find /Library/Fonts /System/Library/Fonts -name "*.ttf" 2>/dev/null | head -1)
+    fi
+    [ -z "$font_path" ] && return 0
+
+    local font_name
+    font_name=$(basename "$font_path" .ttf | tr ' ' '-')
+
+    # Inject the entry before the closing </typemap>
+    local entry="  <type\n     format=\"ttf\"\n     name=\"${font_name}\"\n     fullname=\"${font_name}\"\n     family=\"${font_name}\"\n     foundry=\"URW\"\n     weight=\"400\"\n     style=\"Normal\"\n     stretch=\"Normal\"\n     glyphs=\"${font_path}\"\n     metrics=\"${font_path}\"\n     />"
+    # Use a temp file to avoid in-place sed portability issues
+    local tmp
+    tmp=$(mktemp)
+    awk -v entry="$entry" '/<\/typemap>/{print entry} {print}' "$type_xml" > "$tmp" && mv "$tmp" "$type_xml"
+    echo -e "${GREEN}✓ ImageMagick font registered: $font_path${NC}"
+}
+
+if [[ "$OSTYPE" == "darwin"* ]] && command -v magick &> /dev/null && command -v brew &> /dev/null; then
+    fix_imagemagick_fonts_macos
+fi
+
 # Install Rust tools
 if [ "$RUST_INSTALLED" = true ]; then
     echo ""
