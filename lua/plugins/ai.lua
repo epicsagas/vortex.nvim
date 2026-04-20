@@ -247,11 +247,22 @@ return {
             opts = {
               index = 1,
               is_slash_cmd = true,
+              alias = "explain",
+              auto_submit = true,
+              modes = { "v" },
             },
             prompts = {
               {
                 role = "user",
-                content = "Please explain how this code works:\n\n```{{filetype}}\n{{selection}}\n```",
+                content = function(context)
+                  local helpers = require("codecompanion.helpers.actions")
+                  local code = helpers.get_code(context.start_line, context.end_line)
+                  return string.format(
+                    "Please explain how this code works:\n\n```%s\n%s\n```",
+                    context.filetype,
+                    code
+                  )
+                end,
               },
             },
           },
@@ -261,11 +272,23 @@ return {
             opts = {
               index = 2,
               is_slash_cmd = true,
+              alias = "fix",
+              auto_submit = true,
+              modes = { "v" },
             },
             prompts = {
               {
                 role = "user",
-                content = "Please fix any bugs in this code:\n\n```{{filetype}}\n{{selection}}\n```",
+                content = function(context)
+                  local helpers = require("codecompanion.helpers.actions")
+                  local code = helpers.get_code(context.start_line, context.end_line)
+                  return string.format(
+                    "Please fix any bugs in this code from buffer %d:\n\n```%s\n%s\n```",
+                    context.bufnr,
+                    context.filetype,
+                    code
+                  )
+                end,
               },
             },
           },
@@ -275,11 +298,22 @@ return {
             opts = {
               index = 3,
               is_slash_cmd = true,
+              alias = "optimize",
+              auto_submit = true,
+              modes = { "v" },
             },
             prompts = {
               {
                 role = "user",
-                content = "Please optimize this code for performance and readability:\n\n```{{filetype}}\n{{selection}}\n```",
+                content = function(context)
+                  local helpers = require("codecompanion.helpers.actions")
+                  local code = helpers.get_code(context.start_line, context.end_line)
+                  return string.format(
+                    "Please optimize this code for performance and readability:\n\n```%s\n%s\n```",
+                    context.filetype,
+                    code
+                  )
+                end,
               },
             },
           },
@@ -289,11 +323,22 @@ return {
             opts = {
               index = 4,
               is_slash_cmd = true,
+              alias = "tests",
+              auto_submit = true,
+              modes = { "v" },
             },
             prompts = {
               {
                 role = "user",
-                content = "Please write comprehensive tests for this code:\n\n```{{filetype}}\n{{selection}}\n```",
+                content = function(context)
+                  local helpers = require("codecompanion.helpers.actions")
+                  local code = helpers.get_code(context.start_line, context.end_line)
+                  return string.format(
+                    "Please write comprehensive tests for this code:\n\n```%s\n%s\n```",
+                    context.filetype,
+                    code
+                  )
+                end,
               },
             },
           },
@@ -303,11 +348,22 @@ return {
             opts = {
               index = 5,
               is_slash_cmd = true,
+              alias = "refactor",
+              auto_submit = true,
+              modes = { "v" },
             },
             prompts = {
               {
                 role = "user",
-                content = "Please refactor this code to improve maintainability:\n\n```{{filetype}}\n{{selection}}\n```",
+                content = function(context)
+                  local helpers = require("codecompanion.helpers.actions")
+                  local code = helpers.get_code(context.start_line, context.end_line)
+                  return string.format(
+                    "Please refactor this code to improve maintainability:\n\n```%s\n%s\n```",
+                    context.filetype,
+                    code
+                  )
+                end,
               },
             },
           },
