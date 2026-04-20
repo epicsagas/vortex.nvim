@@ -8,13 +8,17 @@ Set up a complete development environment supporting 24 languages in just 5 minu
 
 ### Automatic Installation (Recommended)
 ```bash
-# Backup existing config (optional)
-mv ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d)
-
 # Clone repository
 git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
+cd ~/.config/nvim
 
-# Run automatic installation
+# Full setup + links vortex binary to ~/.local/bin
+make install
+```
+
+### Script only (without make)
+```bash
+git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
 cd ~/.config/nvim
 ./scripts/install.sh
 ```
@@ -25,6 +29,23 @@ nvim
 ```
 
 Plugins will install automatically (takes 1-2 minutes). Restart Neovim when complete.
+
+### vortex CLI
+
+After installation, manage vortex.nvim from anywhere:
+
+```bash
+vortex status      # show install status, theme, plugins, and tool versions
+vortex update      # pull latest changes and sync plugins
+vortex plugins     # sync lazy.nvim plugins only
+vortex clean       # clear Lua cache (fixes cache-related errors, keeps plugins)
+vortex uninstall   # remove config and data (config is backed up first)
+```
+
+> Add `~/.local/bin` to your PATH if `vortex` is not found:
+> ```bash
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+> ```
 
 ## Step 2: Install Essential Tools (2 minutes)
 

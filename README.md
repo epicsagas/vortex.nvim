@@ -249,27 +249,27 @@ Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like f
 
 ### Fresh Installation (Clone from Git)
 
-**Option 1: Automatic Installation**
+**Option 1: Using `make` (Recommended)**
 ```bash
-# Clone the repository
 git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
+cd ~/.config/nvim
+make install        # full setup + links vortex binary to ~/.local/bin
+```
 
-# Run installer
+**Option 2: Script only**
+```bash
+git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
 cd ~/.config/nvim
 ./scripts/install.sh
 ```
 
-**Option 2: Manual Installation**
+**Option 3: Manual**
 ```bash
-# Clone the repository
 git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
-
-# Launch Neovim (plugins will auto-install)
-cd ~/.config/nvim
-nvim
+nvim                # plugins auto-install on first launch
 ```
 
-The installer (`install.sh`) will prompt you to:
+The installer will prompt you to:
 - Install Rust development tools (rust-analyzer, rustfmt, clippy)
 - Install Go development tools (gopls, delve, gofumpt, goimports)
 - Install nvim-ai CLI integration (optional AI features)
@@ -283,28 +283,38 @@ On first launch, Neovim will automatically:
 
 Wait for plugins to install (1-2 minutes), then restart Neovim.
 
+### vortex CLI
+
+After `make install` (or `make link`), the `vortex` command is available from anywhere:
+
+```bash
+vortex status      # show install status, theme, plugins, and tool versions
+vortex update      # pull latest changes and sync plugins
+vortex plugins     # sync lazy.nvim plugins only
+vortex clean       # clear Lua cache (fixes cache-related errors, keeps plugins)
+vortex uninstall   # remove config and data (config is backed up first)
+vortex help        # show all commands
+```
+
+> **Note**: `~/.local/bin` must be in your `PATH`. Add to `~/.zshrc` or `~/.bashrc` if needed:
+> ```bash
+> export PATH="$HOME/.local/bin:$PATH"
+> ```
+
 ### Deploying to Multiple Machines
 
 **Using Git:**
 ```bash
-# On first machine (create repository)
-cd ~/.config/nvim
-git add .
-git commit -m "Initial Neovim configuration"
-git remote add origin https://github.com/epicsagas/vortex.nvim.git
-git push -u origin main
-
 # On other machines
 git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
 cd ~/.config/nvim
-./scripts/install.sh
+make install
 ```
 
 **Using Direct Copy:**
 ```bash
-# Copy to another machine
 scp -r ~/.config/nvim user@remote:~/.config/
-ssh user@remote "cd ~/.config/nvim && ./scripts/install.sh"
+ssh user@remote "cd ~/.config/nvim && make install"
 ```
 
 ## Key Bindings

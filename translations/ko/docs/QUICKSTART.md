@@ -6,13 +6,17 @@
 
 ### 자동 설치 (권장)
 ```bash
-# 기존 설정 백업 (선택사항)
-mv ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d)
-
 # 저장소 클론
 git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
+cd ~/.config/nvim
 
-# 자동 설치 실행
+# 전체 설치 + vortex 바이너리를 ~/.local/bin에 링크
+make install
+```
+
+### 스크립트만 사용 (make 없이)
+```bash
+git clone https://github.com/epicsagas/vortex.nvim.git ~/.config/nvim
 cd ~/.config/nvim
 ./scripts/install.sh
 ```
@@ -23,6 +27,23 @@ nvim
 ```
 
 플러그인이 자동으로 설치됩니다 (1-2분 소요). 완료되면 Neovim을 재시작하세요.
+
+### vortex CLI
+
+설치 후 어디서든 vortex.nvim을 관리할 수 있습니다:
+
+```bash
+vortex status      # 설치 상태, 테마, 플러그인, 도구 버전 확인
+vortex update      # 최신 변경사항 가져오기 + 플러그인 동기화
+vortex plugins     # lazy.nvim 플러그인만 동기화
+vortex clean       # Lua 캐시 삭제 (캐시 관련 오류 수정, 플러그인 유지)
+vortex uninstall   # 설정 및 데이터 제거 (설정은 먼저 백업됨)
+```
+
+> `vortex` 명령을 찾을 수 없으면 PATH에 `~/.local/bin`을 추가하세요:
+> ```bash
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+> ```
 
 ## 2단계: 필수 도구 설치 (2분)
 
