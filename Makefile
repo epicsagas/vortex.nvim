@@ -29,11 +29,14 @@ install: ## Install vortex.nvim (runs scripts/install.sh + links vortex binary)
 	@bash $(SCRIPTS_DIR)/install.sh
 	@$(MAKE) --no-print-directory link
 
-link: ## Symlink vortex binary to /usr/local/bin
+link: ## Symlink vortex binary to ~/.local/bin (no sudo required)
 	@chmod +x $(SCRIPTS_DIR)/vortex
-	@ln -sf $(SCRIPTS_DIR)/vortex /usr/local/bin/vortex && \
-	  printf "$(GREEN)✓$(NC) vortex linked to /usr/local/bin/vortex\n" || \
-	  printf "$(YELLOW)⚠$(NC) Could not link (try: sudo make link)\n"
+	@mkdir -p $(HOME)/.local/bin
+	@ln -sf $(SCRIPTS_DIR)/vortex $(HOME)/.local/bin/vortex
+	@printf "$(GREEN)✓$(NC) vortex linked to $(HOME)/.local/bin/vortex\n"
+	@if ! echo "$$PATH" | grep -q "$(HOME)/.local/bin"; then \
+	  printf "$(YELLOW)⚠$(NC) Add to PATH: export PATH=\"\$$HOME/.local/bin:\$$PATH\"\n"; \
+	fi
 
 # ── Update ────────────────────────────────────────────────────────────────────
 update: ## Pull latest changes and sync plugins
