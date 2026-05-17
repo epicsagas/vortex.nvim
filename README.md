@@ -1,9 +1,16 @@
 # Neovim Configuration for Multi-Language Development
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Neovim](https://img.shields.io/badge/Neovim-0.10%2B-green.svg)](https://neovim.io/)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/epicsaga)
+<p align="center">
+  <a href="https://github.com/epicsagas/vortex.nvim/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/epicsagas/vortex.nvim?style=for-the-badge&labelColor=0d1117&color=ffd700&logo=github&logoColor=white" /></a>
+  <a href="https://github.com/epicsagas/vortex.nvim/network/members"><img alt="Forks" src="https://img.shields.io/github/forks/epicsagas/vortex.nvim?style=for-the-badge&labelColor=0d1117&color=2ecc71&logo=github&logoColor=white" /></a>
+  <a href="https://github.com/epicsagas/vortex.nvim/issues"><img alt="Issues" src="https://img.shields.io/github/issues/epicsagas/vortex.nvim?style=for-the-badge&labelColor=0d1117&color=ff6b6b&logo=github&logoColor=white" /></a>
+  <a href="https://github.com/epicsagas/vortex.nvim/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/epicsagas/vortex.nvim?style=for-the-badge&labelColor=0d1117&color=58a6ff&logo=git&logoColor=white" /></a>
+</p>
+<p align="center">
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-3fb950?style=for-the-badge&labelColor=0d1117" /></a>
+  <img alt="Lua" src="https://img.shields.io/badge/lua-000080?style=for-the-badge&labelColor=0d1117&logo=lua&logoColor=white" />
+  <a href="https://buymeacoffee.com/epicsaga"><img alt="Buy Me a Coffee" src="https://img.shields.io/badge/buy_me_a_coffee-FFDD00?style=for-the-badge&labelColor=0d1117&logo=buymeacoffee&logoColor=black" /></a>
+</p>
 
 Modern Neovim setup with full LSP support, debugging, formatting, and IDE-like features for **26 languages**.
 
