@@ -378,6 +378,14 @@ echo "This may take 1-2 minutes..."
 
 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 
+# Symlink vortex CLI to ~/.local/bin
+mkdir -p "$HOME/.local/bin"
+if [ -f "$HOME/.config/nvim/scripts/vortex" ]; then
+    chmod +x "$HOME/.config/nvim/scripts/vortex"
+    ln -sf "$HOME/.config/nvim/scripts/vortex" "$HOME/.local/bin/vortex"
+    echo -e "${GREEN}✓ vortex CLI linked to $HOME/.local/bin/vortex${NC}"
+fi
+
 echo ""
 echo -e "${GREEN}=== Installation Complete! ===${NC}"
 echo ""
